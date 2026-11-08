@@ -1,8 +1,8 @@
 # Changelog
 
-## Unreleased (version allocated by the PM at gate)
+## 0.0.2
 
-- ROADMAP row 1: `Secret<T: Zeroize>` with blank `Display` (`<redacted>`) and `Debug` (`Secret(<redacted>)`), `expose()`, no `Clone`/`Deref`/`AsRef`/`Into`, zeroize on drop. Tests: `tests/canary.rs` (R1, byte-exact, nested in struct/Option/Vec/HashMap, 3 negative controls; a leaking `Display` mutation fails `display_and_debug_bytes_are_exact`), `tests/compile_fail.rs` (R6: clone, deref, into, as_ref, private field; one pass control). README example compiled as a doctest.
+- ROADMAP row 1: `Secret<T: Zeroize>` with blank `Display` (`<redacted>`) and `Debug` (`Secret(<redacted>)`), `expose()`, no `Clone`/`Deref`/`AsRef`/`Into`, zeroize on drop. Tests: `tests/canary.rs` (R1, byte-exact, nested in struct/Option/Vec/HashMap, 3 negative controls; a leaking `Display` mutation fails `display_and_debug_bytes_are_exact`), `tests/compile_fail.rs` (R6: clone, deref, into, as_ref, private field; one pass control). README example compiled as a doctest. The compile-fail (trybuild) tests run in their own CI job pinned to rustc 1.99.1, and the normal test job skips them, so a stable rustc bump cannot redden CI by changing error text.
 
 ## 0.0.1
 

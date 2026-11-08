@@ -47,7 +47,21 @@ jobs:
       - uses: dtolnay/rust-toolchain@686976e191b89faba57d3206551f0f330d8cb249 # stable
         with:
           toolchain: stable
-      - run: cargo test --all-features --no-fail-fast
+      # compile_fail is its own job below: its .stderr snapshots are rustc-version specific.
+      - run: cargo test --all-features --no-fail-fast --lib --test canary
+      - run: cargo test --all-features --doc
+
+  # R6 compile-fail (trybuild): the snapshots are pinned to one rustc, so a stable bump cannot redden CI.
+  # Refresh with `TRYBUILD=overwrite cargo +1.99.1 test --test compile_fail` when deliberately moving the pin.
+  compile-fail:
+    name: compile-fail (rustc 1.99.1)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: dtolnay/rust-toolchain@686976e191b89faba57d3206551f0f330d8cb249 # stable
+        with:
+          toolchain: 1.99.1
+      - run: cargo test --test compile_fail
 
   doc:
     name: doc
