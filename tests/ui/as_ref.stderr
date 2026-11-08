@@ -1,0 +1,5 @@
+error[E0599]: no method named `as_ref` found for struct `Secret<T>` in the current scope
+ --> tests/ui/as_ref.rs:4:25
+  |
+4 |     let _v: &String = s.as_ref();
+  |                         ^^^^^^ method not found in `Secret<String>`

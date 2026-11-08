@@ -3,10 +3,14 @@ name = "redactant"
 version = "0.0.1"
 edition = "2024"
 rust-version = "1.88"
-description = "Planned. The crate name is reserved; there is no API yet."
+description = "Secret values that cannot leak through formatting: blank Display and Debug, an explicit expose(), zeroize on drop."
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/ThinkersJournal/redactant"
 readme = "README.md"
 publish = false
 
 [dependencies]
+zeroize = "1.9.1"
+
+[dev-dependencies]
+trybuild = "1.0.122"

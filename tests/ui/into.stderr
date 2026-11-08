@@ -1,0 +1,14 @@
+error[E0277]: the trait bound `String: From<Secret<String>>` is not satisfied
+ --> tests/ui/into.rs:4:24
+  |
+4 |     let _v: String = s.into();
+  |                        ^^^^ the trait `From<Secret<String>>` is not implemented for `String`
+  |
+  = help: `String` implements trait `From<T>`:
+            From<&String>
+            From<&mut str>
+            From<&str>
+            From<Box<str>>
+            From<Cow<'_, str>>
+            From<char>
+  = note: required for `Secret<String>` to implement `Into<String>`
