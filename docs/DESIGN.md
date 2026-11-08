@@ -123,14 +123,15 @@ pass, so each control first asserts the mutation changed the output.
 
 Output compatibility goal: after step 2 ConfigurAnt prints the same text it prints today.
 
-## 10. Open questions for the PM
+## 10. Decisions (PM answers, 2026-11-08)
 
-- **Q1.** Crate shape: one crate with a `serde` feature, or core plus `redactant-serde`? Recommend one crate, one feature.
-- **Q2.** Encoding-aware scrubbing (percent, base64) in v1 or later? Recommend later; ship the plain scrubber first.
-- **Q3.** Short-secret policy: refuse (recommended) or scrub anyway?
-- **Q4.** What does AuditAnt need? If it needs structured *field-level* redaction (a record with some fields secret), that is a
-  derive macro and a larger slice.
-- **Q5.** Placeholder text fixed at `<redacted>`, or configurable? Recommend fixed: one string everywhere is the point.
+- **Q1.** One crate, one `serde` feature.
+- **Q2.** Encoding-aware scrubbing (percent, base64) later; the plain scrubber ships first.
+- **Q3.** Refuse: registering a short secret fails with a named error at registration. Never scrub silently.
+- **Q4.** Deferred: AuditAnt is not designed. Build the types so a field-level derive can be added later without breaking them
+  (ROADMAP row 6; CireSnave's standing rule: push checks to compile time where applicable).
+- **Q5.** Placeholder fixed at `<redacted>`. ConfigurAnt already emits exactly that, so migration changes no bytes. Tests assert
+  the BYTES, never displayed text (a harness redaction layer can show `<redacted>` for real bytes; learned 2026-10-21).
 
 ## 11. Slice 1 (proposed ROADMAP row)
 
