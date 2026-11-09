@@ -2,7 +2,7 @@
 
 ## 0.1.1
 
-- Docs: README rewritten after the s8 fresh-reader trial: a quick start for every shipped feature (use the value, scrub an error, fingerprint, serde), the limits stated where the user will look (scrubber matches plain bytes only and refuses short, empty or non-UTF-8 secrets; fingerprint key must be 16+ bytes and stable, the 4-byte tag can collide; a serde round trip cannot carry the secret). All six examples are doctests, run in CI. `redactant` lists itself as a dev-dependency with the `serde` feature so they run under plain `cargo test`.
+- Docs: README rewritten after the s8 fresh-reader trial: a quick start for every shipped feature (use the value, scrub an error, fingerprint, serde), the limits stated where the user will look (scrubber matches plain bytes only and refuses short, empty or non-UTF-8 secrets; fingerprint key must be 16+ bytes and stable, the 4-byte tag can collide; a serde round trip cannot carry the secret). After trial 2 it also has the install snippet (with the `serde` feature) before the first example, a binary-secret note (register the hex/base64 form), a startup pattern that keeps going when a secret is refused, fingerprint key guidance (generate, hold, rotate), and a persist-a-config recipe with `serialize_with`; the format of `clean_error` and the return of `clean_or_drop` are stated. All eight Rust examples are doctests, run in CI. `redactant` lists itself as a dev-dependency with the `serde` feature so they run under plain `cargo test`.
 
 ## 0.1.0 (**Breaking**, pre-1.0 so the second number)
 
