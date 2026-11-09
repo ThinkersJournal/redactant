@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased (version allocated by the PM at gate)
+## 0.0.3
 
 - ROADMAP row 2: `Scrubber` (R4). `Scrubber::new().with(&Secret<String>)?` registers a secret, refusing an empty or under-4-byte one with `RegisterError::{Empty, TooShort}` (names the length, never the value; DESIGN Q3). `clean` replaces every occurrence with `<redacted>`, longest secret first; `clean_or_drop` is ConfigurAnt's whole-message mode (same bytes); `clean_error` cleans an error and its whole `source()` chain; `clean_debug` cleans a `Debug` rendering. Plain bytes only: encoded or transformed secrets pass through (a test pins this). Tests: `tests/scrubber.rs` (11, byte-exact, 3 controls); reversing the longest-first sort fails 2.
 
