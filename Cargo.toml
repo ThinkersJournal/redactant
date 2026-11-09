@@ -1,6 +1,6 @@
 [package]
 name = "redactant"
-version = "0.0.4"
+version = "0.0.5"
 edition = "2024"
 rust-version = "1.88"
 description = "Secret values that cannot leak through formatting: blank Display and Debug, an explicit expose(), zeroize on drop."
@@ -22,6 +22,8 @@ required-features = ["ui-tests"]
 [dependencies]
 zeroize = "1.9.1"
 serde = { version = "1.0.229", optional = true, default-features = false }
+hmac = "0.13.0"
+sha2 = "0.11.1"
 
 [dev-dependencies]
 trybuild = "1.0.122"
