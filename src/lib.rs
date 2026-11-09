@@ -3,6 +3,10 @@
 #![doc = include_str!("../README.md")]
 #![forbid(unsafe_code)]
 
+mod scrubber;
+
+pub use scrubber::{MIN_SECRET_LEN, RegisterError, Scrubber};
+
 use core::fmt;
 use zeroize::Zeroize;
 
