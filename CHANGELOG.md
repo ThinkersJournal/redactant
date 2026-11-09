@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased (version allocated by the PM at gate)
+
+- ROADMAP row 3: keyed fingerprints (R5). `secret.fingerprint(&key)` returns a `Fingerprint` printed as `fp:` plus 8 lowercase hex characters (first 4 bytes of HMAC-SHA-256). `FingerprintKey::new(bytes)` refuses a key under 16 bytes with `KeyError { len }` (names the length, never the key); the key has blank `Debug` and zeroizes on drop; RedactAnt never stores keys. New dependencies `hmac` 0.13.0 and `sha2` 0.11.1 (PM-approved 2026-11-09; pure Rust, RustCrypto). Tests: `tests/fingerprint.rs` (10, byte-exact, 3 controls) and an RFC 4231 case 2 vector pinning the primitive; ignoring the key fails 3 (2 integration + the vector).
+
 ## 0.0.3
 
 - CI fix: the test job ran only `--lib --test canary`, which would have skipped `tests/scrubber.rs`. It now runs every test target (`cargo test --no-fail-fast`); `compile_fail` has `required-features = ["ui-tests"]` and runs only in the pinned compile-fail job (`--features ui-tests`). New cargo feature `ui-tests` (test-only, empty).

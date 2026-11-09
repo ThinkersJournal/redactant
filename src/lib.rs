@@ -3,8 +3,10 @@
 #![doc = include_str!("../README.md")]
 #![forbid(unsafe_code)]
 
+mod fingerprint;
 mod scrubber;
 
+pub use fingerprint::{Fingerprint, FingerprintKey, KeyError, MIN_KEY_LEN};
 pub use scrubber::{MIN_SECRET_LEN, RegisterError, Scrubber};
 
 use core::fmt;
