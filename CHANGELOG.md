@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased (version allocated by the PM at gate)
+## 0.0.4
 
 - ROADMAP row 4: cargo feature `serde`. `Secret<T>` implements `Serialize` writing the placeholder `"<redacted>"` (never the value; call `expose()` to serialize the real one) and `Deserialize` reading a value straight into a `Secret`. Tests: `tests/serde.rs` (6, byte-exact; R2 nested in struct/Option/Vec/map, R3 `unwrap`/`expect`/`unwrap_err` panic bytes, 2 negative controls). The CI test job now passes `--features serde` so they run.
 
