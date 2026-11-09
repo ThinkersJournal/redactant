@@ -155,6 +155,7 @@ name = "redactant"
 version = "0.1.0"
 dependencies = [
  "hmac",
+ "redactant",
  "serde",
  "serde_json",
  "sha2",
