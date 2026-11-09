@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.5
+
+- ROADMAP row 3: keyed fingerprints (R5). `secret.fingerprint(&key)` returns a `Fingerprint` printed as `fp:` plus 8 lowercase hex characters (first 4 bytes of HMAC-SHA-256). `FingerprintKey::new(bytes)` refuses a key under 16 bytes with `KeyError { len }` (names the length, never the key); the key has blank `Debug` and zeroizes on drop; RedactAnt never stores keys. New dependencies `hmac` 0.13.0 and `sha2` 0.11.1 (PM-approved 2026-11-09; pure Rust, RustCrypto). Tests: `tests/fingerprint.rs` (10, byte-exact, 3 controls) and an RFC 4231 case 2 vector pinning the primitive; ignoring the key fails 3 (2 integration + the vector).
+
 ## 0.0.4
 
 - ROADMAP row 4: cargo feature `serde`. `Secret<T>` implements `Serialize` writing the placeholder `"<redacted>"` (never the value; call `expose()` to serialize the real one) and `Deserialize` reading a value straight into a `Secret`. Tests: `tests/serde.rs` (6, byte-exact; R2 nested in struct/Option/Vec/map, R3 `unwrap`/`expect`/`unwrap_err` panic bytes, 2 negative controls). The CI test job now passes `--features serde` so they run.
