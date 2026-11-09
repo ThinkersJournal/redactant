@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased (version allocated by the PM at gate)
+## 0.1.1
 
 - Docs: README rewritten after the s8 fresh-reader trial: a quick start for every shipped feature (use the value, scrub an error, fingerprint, serde), the limits stated where the user will look (scrubber matches plain bytes only and refuses short, empty or non-UTF-8 secrets; fingerprint key must be 16+ bytes and stable, the 4-byte tag can collide; a serde round trip cannot carry the secret). All six examples are doctests, run in CI. `redactant` lists itself as a dev-dependency with the `serde` feature so they run under plain `cargo test`.
 
