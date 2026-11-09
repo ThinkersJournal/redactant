@@ -46,7 +46,8 @@ let t: &str = token.expose();   // the only way to the value; greppable on purpo
 
 let tag = token.fingerprint(&key);   // e.g. "fp:3f9a1c7e" (see 6)
 
-let scrub = Scrubber::new().with(&token);
+let mut scrub = Scrubber::new();
+scrub.register(&token)?;
 let msg = scrub.clean(&err.to_string());   // "connect failed for <redacted>"
 ```
 

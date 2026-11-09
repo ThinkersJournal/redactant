@@ -13,9 +13,9 @@ fn contains(h: &str, n: &str) -> bool {
 }
 
 fn scrubber() -> Scrubber {
-    Scrubber::new()
-        .with(&Secret::new(CANARY.to_string()))
-        .unwrap()
+    let mut s = Scrubber::new();
+    s.register(&Secret::new(CANARY.to_string())).unwrap();
+    s
 }
 
 #[derive(Debug)]
@@ -67,10 +67,9 @@ fn debug_of_wrapped_error_is_cleaned() {
 
 #[test]
 fn longest_secret_wins_when_one_contains_another() {
-    let s = Scrubber::new()
-        .with(&Secret::new("hunter2".to_string()))
-        .unwrap()
-        .with(&Secret::new("hunter2-extended".to_string()))
+    let mut s = Scrubber::new();
+    s.register(&Secret::new("hunter2".to_string())).unwrap();
+    s.register(&Secret::new("hunter2-extended".to_string()))
         .unwrap();
     assert_eq!(
         s.clean("x hunter2-extended y").as_bytes(),
@@ -96,24 +95,41 @@ fn clean_or_drop_matches_configurant_bytes() {
 
 #[test]
 fn short_and_empty_secrets_are_refused_with_a_named_error() {
-    let e = Scrubber::new()
-        .with(&Secret::new("abc".to_string()))
-        .unwrap_err();
+    let mut s = Scrubber::new();
+    let e = s.register(&Secret::new("abc".to_string())).unwrap_err();
     assert_eq!(e, RegisterError::TooShort { len: 3 });
     assert_eq!(
         e.to_string(),
         "this secret is 3 bytes; the scrubber needs at least 4 so it does not blank ordinary words"
     );
     assert_eq!(
-        Scrubber::new()
-            .with(&Secret::new(String::new()))
-            .unwrap_err(),
+        s.register(&Secret::new(String::new())).unwrap_err(),
         RegisterError::Empty
     );
-    assert!(
-        Scrubber::new()
-            .with(&Secret::new("abcd".to_string()))
-            .is_ok()
+    assert!(s.register(&Secret::new("abcd".to_string())).is_ok());
+}
+
+#[test]
+fn a_refusal_keeps_what_was_registered_before_it() {
+    let mut s = scrubber();
+    assert!(s.register(&Secret::new("abc".to_string())).is_err());
+    assert_eq!(s.len(), 1);
+    assert_eq!(s.clean(CANARY).as_bytes(), b"<redacted>");
+}
+
+#[test]
+fn byte_secrets_are_accepted_and_non_utf8_is_refused_by_name() {
+    let mut s = Scrubber::new();
+    s.register(&Secret::new(CANARY.as_bytes().to_vec()))
+        .unwrap();
+    assert_eq!(s.clean(&format!("x {CANARY}")).as_bytes(), b"x <redacted>");
+    let e = s
+        .register(&Secret::new(vec![0xff, 0xfe, 0xfd, 0xfc, 0xfb]))
+        .unwrap_err();
+    assert_eq!(e, RegisterError::NotUtf8);
+    assert_eq!(
+        e.to_string(),
+        "this secret is not valid UTF-8; the scrubber cleans text, so it cannot find it and it was not registered"
     );
 }
 
@@ -148,12 +164,11 @@ fn control_shortest_first_leaks_a_tail() {
         .replace("hunter2", "<redacted>")
         .replace("hunter2-extended", "<redacted>");
     assert!(contains(&mutated, "-extended"));
-    let real = Scrubber::new()
-        .with(&Secret::new("hunter2".to_string()))
-        .unwrap()
-        .with(&Secret::new("hunter2-extended".to_string()))
-        .unwrap()
-        .clean(text);
+    let mut real = Scrubber::new();
+    real.register(&Secret::new("hunter2".to_string())).unwrap();
+    real.register(&Secret::new("hunter2-extended".to_string()))
+        .unwrap();
+    let real = real.clean(text);
     assert!(!contains(&real, "-extended"));
 }
 
