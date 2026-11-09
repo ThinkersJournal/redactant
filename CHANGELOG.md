@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.0 (**Breaking**, pre-1.0 so the second number)
+
+- PM ruling 2026-11-09 after the s8 fresh-reader trial. **Breaking:** `Scrubber::with` (a consuming builder that lost the scrubber on a refusal) is replaced by `Scrubber::register(&mut self, &Secret<T>) -> Result<(), RegisterError>`. A refusal changes nothing, so the scrubber keeps what it had. `register` takes any `Secret<T>` where `T: Zeroize + AsRef<[u8]>` (`String`, `Vec<u8>`, ...); non-UTF-8 bytes are refused with the new `RegisterError::NotUtf8` (the scrubber cleans text; such a secret could never match as written).
+- **Breaking** (`serde`): `Deserialize for Secret<T>` now needs `T: AsRef<[u8]>` and refuses the exact text `<redacted>` with an error that says a serialize step already destroyed the secret, instead of silently storing the literal placeholder as the secret (a config write-then-read round trip). Why `AsRef<[u8]>`: only byte-like values can be mistaken for the placeholder. Tests: `tests/serde.rs` +3 (round trip errors with the message; near-misses stay ordinary values; control shows a plain `String` would have read it silently); removing the guard fails 2. `tests/scrubber.rs` +2 (a refusal keeps earlier secrets; byte secrets accepted, non-UTF-8 refused by name).
+
 ## 0.0.5
 
 - ROADMAP row 3: keyed fingerprints (R5). `secret.fingerprint(&key)` returns a `Fingerprint` printed as `fp:` plus 8 lowercase hex characters (first 4 bytes of HMAC-SHA-256). `FingerprintKey::new(bytes)` refuses a key under 16 bytes with `KeyError { len }` (names the length, never the key); the key has blank `Debug` and zeroizes on drop; RedactAnt never stores keys. New dependencies `hmac` 0.13.0 and `sha2` 0.11.1 (PM-approved 2026-11-09; pure Rust, RustCrypto). Tests: `tests/fingerprint.rs` (10, byte-exact, 3 controls) and an RFC 4231 case 2 vector pinning the primitive; ignoring the key fails 3 (2 integration + the vector).

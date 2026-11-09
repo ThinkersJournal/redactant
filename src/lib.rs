@@ -65,9 +65,23 @@ impl<T: Zeroize> serde::Serialize for Secret<T> {
 }
 
 #[cfg(feature = "serde")]
-impl<'de, T: Zeroize + serde::Deserialize<'de>> serde::Deserialize<'de> for Secret<T> {
+impl<'de, T: Zeroize + AsRef<[u8]> + serde::Deserialize<'de>> serde::Deserialize<'de>
+    for Secret<T>
+{
     /// Reads a value straight into a `Secret`, so a config struct holds it blank from the start.
+    ///
+    /// Refuses the exact text [`PLACEHOLDER`] with an error: that is what `Serialize` writes, so seeing it means a
+    /// serialize-then-deserialize round trip already destroyed the real secret, and accepting it would silently turn
+    /// the secret into the literal string `<redacted>`. (This is why `T` must expose bytes: only byte-like values can
+    /// be mistaken for the placeholder.)
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        T::deserialize(deserializer).map(Secret::new)
+        let value = T::deserialize(deserializer)?;
+        if value.as_ref() == PLACEHOLDER.as_bytes() {
+            return Err(serde::de::Error::custom(
+                "the value is the redaction placeholder `<redacted>`, which is what a serialized Secret writes; \
+                 the real secret was lost in an earlier serialize step. Supply the real value",
+            ));
+        }
+        Ok(Secret::new(value))
     }
 }
