@@ -49,7 +49,8 @@ jobs:
           toolchain: stable
       # Every test target runs here EXCEPT compile_fail (required-features = ["ui-tests"], so it is off unless asked for;
       # not --all-features, which would turn it on). Its .stderr snapshots are rustc-version specific: own job below.
-      - run: cargo test --no-fail-fast
+      # --features serde, not --all-features: that would also enable ui-tests (compile_fail).
+      - run: cargo test --no-fail-fast --features serde
 
   # R6 compile-fail (trybuild): the snapshots are pinned to one rustc, so a stable bump cannot redden CI.
   # Refresh with `TRYBUILD=overwrite cargo +1.99.1 test --features ui-tests --test compile_fail` when deliberately moving the pin.

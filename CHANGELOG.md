@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased (version allocated by the PM at gate)
+
+- ROADMAP row 4: cargo feature `serde`. `Secret<T>` implements `Serialize` writing the placeholder `"<redacted>"` (never the value; call `expose()` to serialize the real one) and `Deserialize` reading a value straight into a `Secret`. Tests: `tests/serde.rs` (6, byte-exact; R2 nested in struct/Option/Vec/map, R3 `unwrap`/`expect`/`unwrap_err` panic bytes, 2 negative controls). The CI test job now passes `--features serde` so they run.
+
 ## 0.0.3
 
 - CI fix: the test job ran only `--lib --test canary`, which would have skipped `tests/scrubber.rs`. It now runs every test target (`cargo test --no-fail-fast`); `compile_fail` has `required-features = ["ui-tests"]` and runs only in the pinned compile-fail job (`--features ui-tests`). New cargo feature `ui-tests` (test-only, empty).

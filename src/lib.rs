@@ -53,3 +53,19 @@ impl<T: Zeroize> fmt::Debug for Secret<T> {
         f.write_str(")")
     }
 }
+
+#[cfg(feature = "serde")]
+impl<T: Zeroize> serde::Serialize for Secret<T> {
+    /// Writes [`PLACEHOLDER`], never the value. A caller who truly needs the value serialized calls `expose()`.
+    fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        serializer.serialize_str(PLACEHOLDER)
+    }
+}
+
+#[cfg(feature = "serde")]
+impl<'de, T: Zeroize + serde::Deserialize<'de>> serde::Deserialize<'de> for Secret<T> {
+    /// Reads a value straight into a `Secret`, so a config struct holds it blank from the start.
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        T::deserialize(deserializer).map(Secret::new)
+    }
+}
