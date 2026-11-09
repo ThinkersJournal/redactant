@@ -8,6 +8,7 @@
 use crate::{PLACEHOLDER, Secret};
 use core::fmt;
 use std::error::Error;
+use zeroize::Zeroize;
 
 /// The fewest bytes a registered secret may have. Shorter ones would blank ordinary words.
 pub const MIN_SECRET_LEN: usize = 4;
@@ -22,6 +23,9 @@ pub enum RegisterError {
         /// Length of the refused secret, in bytes.
         len: usize,
     },
+    /// The secret's bytes are not valid UTF-8. The scrubber cleans `&str` text, so such a secret could never appear in
+    /// it as written, and matching it piecewise could cut a character in half.
+    NotUtf8,
 }
 
 impl fmt::Display for RegisterError {
@@ -29,6 +33,9 @@ impl fmt::Display for RegisterError {
         match self {
             RegisterError::Empty => f.write_str(
                 "this secret is empty; the scrubber would match everywhere, so it was not registered",
+            ),
+            RegisterError::NotUtf8 => f.write_str(
+                "this secret is not valid UTF-8; the scrubber cleans text, so it cannot find it and it was not registered",
             ),
             RegisterError::TooShort { len } => write!(
                 f,
@@ -53,19 +60,27 @@ impl Scrubber {
         Self::default()
     }
 
-    /// Registers a secret. Refuses an empty or too-short one with a named error; never skips it silently.
-    pub fn with(mut self, secret: &Secret<String>) -> Result<Self, RegisterError> {
-        let value = secret.expose();
-        if value.is_empty() {
+    /// Registers a secret (a `Secret<String>`, `Secret<Vec<u8>>` or any `Secret<T>` whose bytes are valid UTF-8).
+    ///
+    /// Refuses an empty, too-short or non-UTF-8 one with a named [`RegisterError`]; never skips it silently. A refusal
+    /// changes nothing: the scrubber keeps every secret registered before it, so the caller can log the error and go
+    /// on, or fail startup, as it prefers.
+    pub fn register<T: Zeroize + AsRef<[u8]>>(
+        &mut self,
+        secret: &Secret<T>,
+    ) -> Result<(), RegisterError> {
+        let bytes = secret.expose().as_ref();
+        if bytes.is_empty() {
             return Err(RegisterError::Empty);
         }
+        let value = core::str::from_utf8(bytes).map_err(|_| RegisterError::NotUtf8)?;
         if value.len() < MIN_SECRET_LEN {
             return Err(RegisterError::TooShort { len: value.len() });
         }
-        self.secrets.push(Secret::new(value.clone()));
+        self.secrets.push(Secret::new(value.to_owned()));
         self.secrets
             .sort_by_key(|s| core::cmp::Reverse(s.expose().len()));
-        Ok(self)
+        Ok(())
     }
 
     /// How many secrets are registered.

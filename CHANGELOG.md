@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased (version allocated by the PM at gate; **Breaking**, pre-1.0 so the second number)
+
+- PM ruling 2026-11-09 after the s8 fresh-reader trial. **Breaking:** `Scrubber::with` (a consuming builder that lost the scrubber on a refusal) is replaced by `Scrubber::register(&mut self, &Secret<T>) -> Result<(), RegisterError>`. A refusal changes nothing, so the scrubber keeps what it had. `register` takes any `Secret<T>` where `T: Zeroize + AsRef<[u8]>` (`String`, `Vec<u8>`, ...); non-UTF-8 bytes are refused with the new `RegisterError::NotUtf8` (the scrubber cleans text; such a secret could never match as written).
+- **Breaking** (`serde`): `Deserialize for Secret<T>` now needs `T: AsRef<[u8]>` and refuses the exact text `<redacted>` with an error that says a serialize step already destroyed the secret, instead of silently storing the literal placeholder as the secret (a config write-then-read round trip). Why `AsRef<[u8]>`: only byte-like values can be mistaken for the placeholder. Tests: `tests/serde.rs` +3 (round trip errors with the message; near-misses stay ordinary values; control shows a plain `String` would have read it silently); removing the guard fails 2. `tests/scrubber.rs` +2 (a refusal keeps earlier secrets; byte secrets accepted, non-UTF-8 refused by name).
+
 ## 0.0.4
 
 - ROADMAP row 4: cargo feature `serde`. `Secret<T>` implements `Serialize` writing the placeholder `"<redacted>"` (never the value; call `expose()` to serialize the real one) and `Deserialize` reading a value straight into a `Secret`. Tests: `tests/serde.rs` (6, byte-exact; R2 nested in struct/Option/Vec/map, R3 `unwrap`/`expect`/`unwrap_err` panic bytes, 2 negative controls). The CI test job now passes `--features serde` so they run.

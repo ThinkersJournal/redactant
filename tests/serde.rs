@@ -152,3 +152,43 @@ fn control_leaky_panic_is_caught() {
     });
     assert!(contains(&out, CANARY));
 }
+
+// ---- the round-trip trap (found by the s8 fresh-reader trial, 2026-11-09) ----
+
+#[test]
+fn deserializing_the_placeholder_is_a_named_error_not_a_silent_secret() {
+    #[derive(Deserialize, Serialize)]
+    struct Cfg {
+        token: Secret<String>,
+    }
+    let original: Cfg = serde_json::from_str(&format!("{{\"token\":\"{CANARY}\"}}")).unwrap();
+    let written = serde_json::to_string(&original).unwrap();
+    assert_eq!(written.as_bytes(), br#"{"token":"<redacted>"}"#);
+    // Reading it back must fail, with a message that says what happened.
+    let err = serde_json::from_str::<Cfg>(&written)
+        .err()
+        .expect("round trip must fail");
+    let msg = err.to_string();
+    assert!(
+        msg.starts_with("the value is the redaction placeholder `<redacted>`"),
+        "{msg}"
+    );
+    assert!(msg.contains("Supply the real value"));
+    assert!(!contains(msg.as_bytes(), CANARY));
+}
+
+#[test]
+fn near_misses_of_the_placeholder_are_ordinary_values() {
+    for text in ["<redacted>x", "redacted", "<REDACTED>", " <redacted>"] {
+        let s: Secret<String> = serde_json::from_str(&format!("\"{text}\"")).unwrap();
+        assert_eq!(s.expose().as_bytes(), text.as_bytes());
+    }
+}
+
+#[test]
+fn control_without_the_guard_the_round_trip_would_be_silent() {
+    // What the old Deserialize did: a plain String reads the placeholder back happily. The guard closes this.
+    let plain: String = serde_json::from_str("\"<redacted>\"").unwrap();
+    assert_eq!(plain.as_bytes(), b"<redacted>");
+    assert!(serde_json::from_str::<Secret<String>>("\"<redacted>\"").is_err());
+}
