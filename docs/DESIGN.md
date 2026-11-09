@@ -108,7 +108,7 @@ pass, so each control first asserts the mutation changed the output.
 
 ## 8. Ease of use (a release gate)
 
-- README opens with the four-line example from section 4 and nothing before it.
+- README shows the install snippet (with the `serde` feature) and then the four-line example from section 4 (PM, 2026-11-09, after trial 2).
 - The example is compiled and run in CI (ConfigurAnt's row 30 pattern).
 - Fresh-eyes trial of the published crate before the first release.
 - Errors name what to do ("this secret is 2 bytes; the scrubber needs at least 4").

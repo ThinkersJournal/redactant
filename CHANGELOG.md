@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.1
+
+- Docs: README rewritten after the s8 fresh-reader trial: a quick start for every shipped feature (use the value, scrub an error, fingerprint, serde), the limits stated where the user will look (scrubber matches plain bytes only and refuses short, empty or non-UTF-8 secrets; fingerprint key must be 16+ bytes and stable, the 4-byte tag can collide; a serde round trip cannot carry the secret). After trial 2 it also has the install snippet (with the `serde` feature) before the first example, a binary-secret note (register the hex/base64 form), a startup pattern that keeps going when a secret is refused, fingerprint key guidance (generate, hold, rotate), and a persist-a-config recipe with `serialize_with`; the format of `clean_error` and the return of `clean_or_drop` are stated. All eight Rust examples are doctests, run in CI. `redactant` lists itself as a dev-dependency with the `serde` feature so they run under plain `cargo test`.
+
 ## 0.1.0 (**Breaking**, pre-1.0 so the second number)
 
 - PM ruling 2026-11-09 after the s8 fresh-reader trial. **Breaking:** `Scrubber::with` (a consuming builder that lost the scrubber on a refusal) is replaced by `Scrubber::register(&mut self, &Secret<T>) -> Result<(), RegisterError>`. A refusal changes nothing, so the scrubber keeps what it had. `register` takes any `Secret<T>` where `T: Zeroize + AsRef<[u8]>` (`String`, `Vec<u8>`, ...); non-UTF-8 bytes are refused with the new `RegisterError::NotUtf8` (the scrubber cleans text; such a secret could never match as written).

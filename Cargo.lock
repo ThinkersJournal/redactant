@@ -152,9 +152,10 @@ dependencies = [
 
 [[package]]
 name = "redactant"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "hmac",
+ "redactant",
  "serde",
  "serde_json",
  "sha2",

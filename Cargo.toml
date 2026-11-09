@@ -1,6 +1,6 @@
 [package]
 name = "redactant"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2024"
 rust-version = "1.88"
 description = "Secret values that cannot leak through formatting: blank Display and Debug, an explicit expose(), zeroize on drop."
@@ -26,6 +26,8 @@ hmac = "0.13.0"
 sha2 = "0.11.1"
 
 [dev-dependencies]
+# Self-dependency: turns the `serde` feature on for tests and doctests, so the README example runs under plain `cargo test`.
+redactant = { path = ".", features = ["serde"] }
 trybuild = "1.0.122"
 serde_json = "1.0.154"
 serde = { version = "1.0.229", features = ["derive"] }
