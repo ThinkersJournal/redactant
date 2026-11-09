@@ -3,12 +3,11 @@
 Keep secrets out of logs, errors and config dumps. A `Secret<T>` prints as `<redacted>`, has one explicit way to get the
 value out (`expose()`, easy to grep for), and wipes its memory when dropped. Around it: a scrubber that removes known
 secrets from error messages, a keyed fingerprint to tell "same secret" apart without revealing it, and an opt-in `serde`
-feature. Pre-release: not on crates.io yet (`publish = false`).
+feature. Early releases (0.1.x): the API may still change in a minor version, and each change is in the CHANGELOG.
 
 ```toml
 [dependencies]
-# Pre-release: depend on it by path or git until it is published.
-redactant = { path = "../redactant", features = ["serde"] } # drop `features` if you do not use serde
+redactant = { version = "0.1", features = ["serde"] } # drop `features` if you do not use serde
 ```
 
 The `serde` feature is what makes `Secret<T>` implement `Serialize` and `Deserialize`; without it, a struct holding a
