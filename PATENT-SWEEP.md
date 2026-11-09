@@ -5,7 +5,7 @@ then the independent claims of the closest hits read with `tools/patent-claims.p
 freedom-to-operate opinion. There is no attorney. Process: `C:\Projects\PATENT-SWEEP-PROCESS.md`.
 
 **Status: first pass COMPLETE for the routes run; no `needs-review`.** Routes NOT run: USPTO full-text, Espacenet, WIPO, assignee
-searches, non-US grants. The PM decides whether that coverage suffices for the first publish (see Limitations).
+searches, non-US grants. The PM accepted this scope as enough for the first publish under the portfolio rule (PM message to the lane, 2026-11-09; a reading, not legal advice); the limits below stand.
 
 Scope: everything in the crate at 0.1.1: `Secret<T>`, `Scrubber`, `Fingerprint`/`FingerprintKey`, the `serde` feature, and the
 canary test method in `tests/`.
