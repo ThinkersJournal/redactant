@@ -1,0 +1,1 @@
+- Docs: ROADMAP row 5 no longer says "held; rows 1-3 published (PM)". redactant 0.1.2 is published and tagged, so the row reads unblocked and waits on the consumer lanes. No code change.
