@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.3
+
+- Docs: ROADMAP row 5 no longer says "held; rows 1-3 published (PM)". redactant 0.1.2 is published and tagged, so the row reads unblocked and waits on the consumer lanes. No code change. (Version allocated by the PM 2026-11-10; this repo has no `tools/stamp-version.py`, so the lane carries its own version.)
+
 ## 0.1.2
 
 - Publish readiness (PM task 2026-11-09): `PATENT-SWEEP.md` (first pass at 0.1.1 @ b502904, 17 patents read, no `needs-review`, design constraints recorded); `publish = false` removed; `keywords` and `categories` added so `releaseant plan --require-metadata readme,keywords,rust-version,categories,repository` passes; README install snippet now `version = "0.1"` and drops the "not on crates.io" line. No code change.
