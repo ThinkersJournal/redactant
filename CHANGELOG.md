@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.4 — adopt the fragment+stamp kit (chore)
+
+Chore: adopt the PM changelog-fragment kit (tools/stamp-version.py, tools/check-fragment.py, .github/workflows/changelog-fragment.yml, changelog.d/README.md). From here a PR carries one changelog.d fragment and no version edit; the PM stamps at merge. Dry run with a throwaway fragment listed Cargo.toml, Cargo.lock and CHANGELOG.md. No code change.
+
 ## 0.1.3
 
 - Docs: ROADMAP row 5 no longer says "held; rows 1-3 published (PM)". redactant 0.1.2 is published and tagged, so the row reads unblocked and waits on the consumer lanes. No code change. (Version allocated by the PM 2026-11-10; this repo has no `tools/stamp-version.py`, so the lane carries its own version.)
