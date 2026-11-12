@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.5 — docs: field-level derive design (ROADMAP row 6)
+
+Docs only: `docs/DERIVE.md` writes the redactant-side design for structured redaction (attribute syntax, enums and nesting, sink-based consumption, additive-only check against row 1, canary and compile-fail test plan with negative controls, questions for the AuditAnt author); ROADMAP row 6 points at it. No code change.
+
 ## 0.1.4 — adopt the fragment+stamp kit (chore)
 
 Chore: adopt the PM changelog-fragment kit (tools/stamp-version.py, tools/check-fragment.py, .github/workflows/changelog-fragment.yml, changelog.d/README.md). From here a PR carries one changelog.d fragment and no version edit; the PM stamps at merge. Dry run with a throwaway fragment listed Cargo.toml, Cargo.lock and CHANGELOG.md. No code change.
