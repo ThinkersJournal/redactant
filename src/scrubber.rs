@@ -5,7 +5,7 @@
 //! Limits, stated as part of the contract: the scrubber only finds the plain bytes of a secret it was told about. A
 //! secret that was transformed first (base64, percent-encoded, truncated, split across lines) is not found.
 
-use crate::{PLACEHOLDER, Secret};
+use crate::secret::{PLACEHOLDER, Secret};
 use core::fmt;
 use std::error::Error;
 use zeroize::Zeroize;
