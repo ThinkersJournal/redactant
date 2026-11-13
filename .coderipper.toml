@@ -1,0 +1,51 @@
+# The `[architecture]` declaration (ARC/MOD programme, CireSnave 2026-11-12). NORMATIVE: it says where things should sit.
+# One crate, four groups. `secret` (src/secret.rs: `Secret<T>`, `PLACEHOLDER`, the serde impls) is the bottom; `fingerprint` and `scrubber`
+# build on it; `api` is the crate root (src/lib.rs), which only declares the modules and re-exports their public items, so it sits on top.
+# Layers are bottom first: a component may depend on its own layer or any layer below it. Measured 2026-11-12 at main 0562051 by
+# reading `crate::` paths and `mod`/`pub use` lines. Owner: the redactant lane.
+[architecture]
+style = "layered"
+
+[[architecture.component]]
+name = "secret"
+paths = ["src/secret.rs"]
+role = "policy"
+volatility = "stable"
+
+[[architecture.component]]
+name = "fingerprint"
+paths = ["src/fingerprint.rs"]
+role = "policy"
+
+[[architecture.component]]
+name = "scrubber"
+paths = ["src/scrubber.rs"]
+role = "policy"
+
+[[architecture.component]]
+name = "api"
+paths = ["src/lib.rs"]
+role = "policy"
+
+[[architecture.layer]]
+name = "core"
+components = ["secret"]
+
+[[architecture.layer]]
+name = "services"
+components = ["fingerprint", "scrubber"]
+
+[[architecture.layer]]
+name = "facade"
+components = ["api"]
+
+# Volatile details: the keyed-hash crates behind fingerprints (only `fingerprint` names them). No volatile `names`.
+# `secret` carries the optional serde impls, so its `cfg(feature = "serde")` is counted by ARC-003 and is the expected finding set.
+[architecture.volatile]
+names = []
+namespaces = ["hmac", "sha2"]
+feature_cfg_in_policy = true
+
+# Public items per component (ARC-006): a ceiling to hold. The run states the measured count; set to it, not above.
+[architecture.api_budget]
+secret = 12

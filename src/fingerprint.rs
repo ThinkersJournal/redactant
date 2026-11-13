@@ -7,7 +7,7 @@
 //! handful of secrets and is useless for confirming a guess. It is **not** a security boundary. RedactAnt never stores
 //! keys: the caller holds the [`FingerprintKey`].
 
-use crate::Secret;
+use crate::secret::Secret;
 use core::fmt;
 use hmac::{Hmac, KeyInit, Mac};
 use sha2::Sha256;
@@ -55,7 +55,7 @@ impl FingerprintKey {
 impl fmt::Debug for FingerprintKey {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.write_str("FingerprintKey(")?;
-        f.write_str(crate::PLACEHOLDER)?;
+        f.write_str(crate::secret::PLACEHOLDER)?;
         f.write_str(")")
     }
 }
