@@ -40,12 +40,11 @@ name = "facade"
 components = ["api"]
 
 # Volatile details: the keyed-hash crates behind fingerprints (only `fingerprint` names them). No volatile `names`.
-# `secret` carries the optional serde impls, so its `cfg(feature = "serde")` is counted by ARC-003 and is the expected finding set.
+# ARC-003 judges whole crates only in 0.43.54 (module groups are not judged), so this table is declared intent until it reads them.
 [architecture.volatile]
 names = []
 namespaces = ["hmac", "sha2"]
 feature_cfg_in_policy = true
 
-# Public items per component (ARC-006): a ceiling to hold. The run states the measured count; set to it, not above.
-[architecture.api_budget]
-secret = 12
+# No [architecture.api_budget]: ARC-006 (coderipper 0.43.54) judges whole crates only ("module groups are not judged in this version"), so a budget
+# for a module of this one crate would be a number nothing checks. Add one when ARC-006 reads module groups.
