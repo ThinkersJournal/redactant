@@ -11,11 +11,14 @@ name = "secret"
 paths = ["src/secret.rs"]
 role = "policy"
 volatility = "stable"
+# The one place that names the placeholder text: no other file under src/ writes the literal (PLACEHOLDER is imported from here).
+owns_data = ["<redacted>"]
 
 [[architecture.component]]
 name = "fingerprint"
 paths = ["src/fingerprint.rs"]
-role = "policy"
+# Wraps the outside crates hmac and sha2 behind Fingerprint and FingerprintKey.
+role = "adapter"
 
 [[architecture.component]]
 name = "scrubber"
@@ -46,5 +49,10 @@ names = []
 namespaces = ["hmac", "sha2"]
 feature_cfg_in_policy = true
 
-# No [architecture.api_budget]: ARC-006 (coderipper 0.43.54) judges whole crates only ("module groups are not judged in this version"), so a budget
-# for a module of this one crate would be a number nothing checks. Add one when ARC-006 reads module groups.
+# Public items per component (ARC-006), counted by hand from src/secret.rs at 6f3a653: PLACEHOLDER, Secret, Secret::new, Secret::expose = 4.
+# A ceiling to hold. coderipper 0.43.x does not judge module groups, so nothing checks it yet; it is declared intent.
+[architecture.api_budget]
+secret = 4
+
+# No [architecture.composition]: this is a library that only re-exports; nothing in it wires adapters together, so there is no root to declare.
+# ARC-012 therefore does not run here (it needs a root). Left out rather than contrived; see redactant#19.
