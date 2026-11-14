@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.8 — docs: detector design (ROADMAP row 7)
+
+Docs only: `docs/DETECT.md` designs shape-based screening of text for secrets nobody registered (match classes, results that never carry matched text, regex and entropy dependency options, false-positive policy, test plan with negative controls and run-time-assembled fixtures, patent re-sweep plan, questions for the PM and SageAnt); `docs/DESIGN.md` section 3 is amended per the PM (2026-11-14): shape-based screening behind a feature, never on by default, never a claim of completeness, no code until the re-sweep gate is cleared; ROADMAP row 7 points at it. No code and no public API change.
+
 ## 0.1.7 — ci: repin the portfolio caller to coderipper 42dd497; declare api_budget, owns_data, adapter role
 
 CI and declaration only: the advisory `portfolio` job called coderipper `portfolio.yml@30e012b7` (CodeRipper 0.9.6), which cannot parse the `[architecture]` table declared in 0.1.6. It now calls the merge commit of coderipper#313 (`42dd497d`, CodeRipper 0.43.49). `.coderipper.toml` also declares what is true of the crate: an `api_budget` of 4 for `secret` (counted by hand), `owns_data` for the placeholder text, and `fingerprint` as an adapter over hmac and sha2; no composition root is declared because the library wires nothing, so ARC-012 does not run. No code change.
