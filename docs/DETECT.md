@@ -179,11 +179,18 @@ For the PM / CireSnave, **answered 2026-11-14 (PM [TASK] redactant-detect-answer
    searches; the PM and CireSnave read a `needs-review`; verdicts are "outside as read" with the claim text.**
 
 For SageAnt's author, **sent 2026-11-14 as one numbered message (numbered 1-5 there); answers are recorded here when they
-arrive, none yet:**
+arrive:** SageAnt answered 2026-11-14 (its `docs/CONTRACT.md` D9; **a lane proposal, not a PM ruling**):
 
-3. Does the refusal need only the **class** or also the **range**? (A range reveals the secret's length to log readers.)
-4. Which classes does a Knowledge Store put actually need? Pasted API tokens and PEM blocks only, or also `password=...` lines?
-5. Is a false positive acceptable if it refuses a legitimate note, or must a human be able to override per put? (This decides
-   how strict section 6 has to be.)
-6. Maximum put size and latency budget (sets the input cap in section 2.3).
-7. Does SageAnt need text only, or also bytes?
+3. (SageAnt 1) Class only, or also the range? **Class only, never the range** (its audit log keeps the class, never content).
+   Consequence for section 3: `Finding` drops `start` and `len` for this consumer; ranges would be an opt-in for a consumer that wants
+   to redact, and no consumer has asked.
+4. (SageAnt 2) Which classes? **Default on: PEM private key, URL credentials, JWT, provider tokens. Opt-in: `password=` lines,
+   high-entropy.** This matches the default set in sections 4 and 6.
+5. (SageAnt 3) False positive: **refuse by default; a per-put override must exist**, needing an explicit caller-held allow value
+   (not a bool default), audit-logged with class and no content. The override lives in SageAnt, not in redactant: the detector
+   has no allow switch per put, only the class set chosen at construction.
+6. (SageAnt 4) Size and latency: **no fixed size; a per-collection byte cap set by the caller; budget unmeasured, proposed a few
+   ms for 64 KiB, single pass.** Consistent with section 2.3; redactant measures this at slice 2 (X4) and states the number it
+   actually reaches rather than adopting the proposal.
+7. (SageAnt 5) Text only? **Text only (`&str`; its chunks are UTF-8 NFC); bytes not needed.** Matches section 8.
+
