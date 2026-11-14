@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.11 — coderipper 0.43.77 repin; declare no composition root
+
+Repins the portfolio caller in `ci.yml` to coderipper 58e2f7a (workflow installs 0.43.77) and adds `none = ["composition"]` to `[architecture]` in `.coderipper.toml`: the crate only re-exports and wires nothing, so ARC-012 now runs with 0 sites by declaration instead of reading "not run". The other optional inputs (volatile, api_budget, owns_data) stay declared. No code change; verified by reading the whole portfolio job log on this PR.
+
 ## 0.1.10 — SPDX headers on the trybuild test sources
 
 Adds the `SPDX-License-Identifier: MIT OR Apache-2.0` header to `tests/ui-pass/expose.rs` and `tests/ui/{as_ref,clone,deref,field,into}.rs` (closes #18). The header shifts every line by one, so the five `tests/ui/*.stderr` snapshots were regenerated with `TRYBUILD=overwrite cargo +1.99.1 test --features ui-tests --test compile_fail`; the diff is the line number in each snapshot and nothing else. Verified: compile_fail passes on rustc 1.99.1 without the overwrite flag.
