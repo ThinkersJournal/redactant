@@ -46,7 +46,7 @@ impl Detector {
 }
 pub struct Screening { /* findings, in input order, capped */ }
 impl Screening { pub fn is_clean(&self) -> bool; pub fn findings(&self) -> &[Finding]; }
-#[non_exhaustive] pub enum Class { PrivateKeyBlock, UrlCredentials, Jwt, ProviderToken, KeyValueSecret, HighEntropy }
+#[non_exhaustive] pub enum Class { PrivateKeyBlock, UrlCredentials, Jwt, ProviderToken, KeyValueSecret }
 pub struct Finding { pub class: Class, pub start: usize, pub len: usize }   // Debug prints class and range only
 ```
 
@@ -64,7 +64,7 @@ is not a breaking change (row 1 types are untouched; this adds names only, as `D
 | `Jwt` | three base64url segments, the first beginning `eyJ` and decoding to a JSON object with an `alg` field | high with the decode check, medium without; decode check is part of the design |
 | `ProviderToken` | a fixed prefix plus a length and character set: the vendors publish these (AWS access key id `AKIA` + 16, GitHub `ghp_` + 36, Slack `xox` forms, Stripe `sk_live_`). **UNVERIFIED**: the table is filled from each vendor's current documentation at build time and each row carries its source and the date read | high per row; each row is its own test |
 | `KeyValueSecret` | a key whose name is `password`, `passwd`, `secret`, `token`, `api_key`, `apikey`, `authorization` (case-insensitive) followed by `=` or `:` and a value of at least 8 non-space characters | **medium; opt-in**: prose such as "token: bucket" must not match, so the value must also look random (not a dictionary word) |
-| `HighEntropy` | a token of 20 or more `[A-Za-z0-9+/_-]` characters whose Shannon entropy per character is at or above a threshold (starting point 4.0 bits for base64-like text, to be fitted on a corpus) | **low; opt-in**: hashes, UUIDs, git SHAs and base64 images all match; included only because some consumers want it, and named so |
+| ~~`HighEntropy`~~ | **not built (PM decision 2026-11-14, section 13)**: an entropy-threshold class was dropped because four entropy-related patents are active and nobody asked for it | n/a |
 
 ## 5. Dependency options (the cost of "scan text for shapes")
 
@@ -75,7 +75,7 @@ adds nothing for a consumer that does not enable it.
 |---|---|---|---|
 | A. `regex` | `regex` 1.13.1 | one pattern language for every class; **guaranteed linear time** (no backtracking), which section 2.3 needs; most reviewed | large compile time and binary size for a handful of patterns |
 | B. `regex-lite` | `regex-lite` 0.1.9 | same pattern language, much smaller, also linear time | fewer features (no Unicode classes), which these ASCII shapes do not need; less widely deployed. **UNVERIFIED**: its worst-case guarantee must be read before choosing |
-| C. `aho-corasick` + hand scanners | `aho-corasick` 1.1.5 | smallest dependency for the prefix classes | every non-prefix class (`Jwt`, `UrlCredentials`, entropy) becomes hand-written scanning code that has to be reviewed and fuzzed; more of our own bug surface |
+| C. `aho-corasick` + hand scanners | `aho-corasick` 1.1.5 | smallest dependency for the prefix classes | every non-prefix class (`Jwt`, `UrlCredentials`) becomes hand-written scanning code that has to be reviewed and fuzzed; more of our own bug surface |
 | D. no dependency | none | nothing to track | all of C's cost, plus a prefix matcher of our own |
 
 **Recommendation: B** if its linear-time guarantee reads true against its docs, else **A**. Both are one line in the feature
@@ -87,7 +87,7 @@ is made on versions read on the day, not on this table.
 For a *refuse-the-write* consumer such as SageAnt, a false positive is a legitimate put that gets refused, so each class has a
 written precision stance (section 4) and these rules:
 
-1. **Default set = the classes marked high.** `KeyValueSecret` and `HighEntropy` need an explicit `with(...)`.
+1. **Default set = the classes marked high.** `KeyValueSecret` needs an explicit `with(...)`.
 2. **The caller can drop a class**, never a single pattern at runtime from outside: suppression is by class, in code, visible in
    review.
 3. **Each class ships with a measured precision claim**: a positive set and a near-miss set per class (a too-short `AKIA` id, a
@@ -110,7 +110,7 @@ output.
 | X3 | **no output form of a `Screening` or `Finding` (`Debug`, `Display`, `{:#?}`, serde) contains any byte of the input canary** | a hand-written finding type that carries the matched slice |
 | X4 | input of the maximum size is screened in bounded time, and a pathological input (a long run of one character; deeply repeated prefix) does not blow up | a backtracking engine on the same input, which is slow |
 | X5 | a rule set that fails to compile is an `Err`, not an empty detector | a constructor that swallows the error |
-| X6 | the default set excludes `KeyValueSecret` and `HighEntropy` | a default that includes them |
+| X6 | the default set excludes `KeyValueSecret` | a default that includes it |
 
 **Fixtures never hold a real credential and never a string a secret scanner takes for one.** CodeRipper's SEC-002 reads git
 history (gitleaks), so a literal `AKIA...` or a PEM header in a test file would be reported for as long as the commit exists.
@@ -165,8 +165,17 @@ verdict the PM accepts.*
 ## 11. Slices (proposed, each its own PR, version numbers allocated by the PM)
 
 1. Patent sweep verdict (docs). 2. `detect` feature with `PrivateKeyBlock`, `UrlCredentials`, X1-X6 and the run-time fixture
-method. 3. `Jwt` and the provider table with sources and dates. 4. Opt-in `KeyValueSecret` and `HighEntropy` with a fitted,
-published threshold and corpus. Each slice is stoppable: slice 2 alone already serves a refuse-the-write consumer.
+method. 3. `Jwt` and the provider table with sources and dates. 4. Opt-in `KeyValueSecret` with a published precision claim and corpus. Each slice is stoppable: slice 2 alone already serves a refuse-the-write consumer.
+
+## 13. Decisions (PM, 2026-11-14, patent-cautious, listed for CireSnave)
+
+- **`HighEntropy` is not built.** Nobody asked, and four entropy-related patents are Active (US9619670B1 to 2035, US9336381B1 to 2034,
+  US12299131B2, US11341270B2). Sections 3, 4, 6, 7 and 11 are amended to match. No entropy test of any kind is in the design.
+- The default classes (PEM header, URL credentials, JWT structure, provider prefixes) stay on, as **"outside as read", never "clear"**
+  (`PATENT-SWEEP.md`, Re-sweep 2).
+- **Standing non-goal: no owner notification** in the `Scrubber` or any put path (US20230063214A1); recorded in `DESIGN.md` section 3.
+- The patent routes my tools could not run (USPTO full text, Espacenet) the PM and CireSnave cannot run either; the sweep states the
+  limit and the work moves on.
 
 ## 12. Questions and answers
 
