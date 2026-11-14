@@ -1,5 +1,5 @@
 error[E0599]: no method named `clone` found for struct `Secret<T>` in the current scope
- --> tests/ui/clone.rs:4:16
+ --> tests/ui/clone.rs:5:16
   |
-4 |     let _c = s.clone();
+5 |     let _c = s.clone();
   |                ^^^^^ method not found in `Secret<String>`

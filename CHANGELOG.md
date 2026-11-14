@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.10 — SPDX headers on the trybuild test sources
+
+Adds the `SPDX-License-Identifier: MIT OR Apache-2.0` header to `tests/ui-pass/expose.rs` and `tests/ui/{as_ref,clone,deref,field,into}.rs` (closes #18). The header shifts every line by one, so the five `tests/ui/*.stderr` snapshots were regenerated with `TRYBUILD=overwrite cargo +1.99.1 test --features ui-tests --test compile_fail`; the diff is the line number in each snapshot and nothing else. Verified: compile_fail passes on rustc 1.99.1 without the overwrite flag.
+
 ## 0.1.9 — docs: patent re-sweep of the detector family (design only)
 
 Docs only: `PATENT-SWEEP.md` gains a second pass for the unbuilt detector family of `docs/DETECT.md` (six queries, eleven documents read whole, verdicts "outside as read" with the limitation quoted, routes not run stated, design constraints, and one decision requested about the entropy class). No code and no public API change.
