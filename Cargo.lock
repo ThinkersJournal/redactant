@@ -152,7 +152,7 @@ dependencies = [
 
 [[package]]
 name = "redactant"
-version = "0.1.10"
+version = "0.1.11"
 dependencies = [
  "hmac",
  "redactant",

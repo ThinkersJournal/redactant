@@ -5,6 +5,8 @@
 # reading `crate::` paths and `mod`/`pub use` lines. Owner: the redactant lane.
 [architecture]
 style = "layered"
+# States an input this crate has none of, so ARC-012 runs with 0 sites by declaration instead of reading "not run" (coderipper 0.43.77).
+none = ["composition"]
 
 [[architecture.component]]
 name = "secret"
@@ -55,4 +57,4 @@ feature_cfg_in_policy = true
 secret = 4
 
 # No [architecture.composition]: this is a library that only re-exports; nothing in it wires adapters together, so there is no root to declare.
-# ARC-012 therefore does not run here (it needs a root). Left out rather than contrived; see redactant#19.
+# `none = ["composition"]` above says so; ARC-012 runs and reports 0 sites by declaration. Not contrived; see redactant#19.
