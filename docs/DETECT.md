@@ -194,7 +194,7 @@ arrive:** SageAnt answered 2026-11-14 (its `docs/CONTRACT.md` D9; **a lane propo
    Consequence for section 3: `Finding` drops `start` and `len` for this consumer; ranges would be an opt-in for a consumer that wants
    to redact, and no consumer has asked.
 4. (SageAnt 2) Which classes? **Default on: PEM private key, URL credentials, JWT, provider tokens. Opt-in: `password=` lines,
-   high-entropy.** This matches the default set in sections 4 and 6.
+   high-entropy** (the entropy class was then dropped by the PM, section 13). This matches the default set in sections 4 and 6.
 5. (SageAnt 3) False positive: **refuse by default; a per-put override must exist**, needing an explicit caller-held allow value
    (not a bool default), audit-logged with class and no content. The override lives in SageAnt, not in redactant: the detector
    has no allow switch per put, only the class set chosen at construction.
