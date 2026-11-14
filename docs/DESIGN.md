@@ -31,7 +31,7 @@ In v1:
    rule that each rule's test has a *negative control* (a deliberately leaking mutation that must make the test fail).
 
 Not in v1 (stated so nobody assumes them): encryption or storage of secrets (that is SecretAnt); locking memory
-(`mlock`); detecting secrets by guessing (entropy or regex scanners); redacting values we were never told about; a log
+(`mlock`); detecting secrets by guessing (entropy or regex scanners), **amended 2026-11-14 (PM): shape-based screening behind a feature, never on by default, never a claim of completeness, and no code until the patent re-sweep gate is cleared; see `DETECT.md`**; redacting values we were never told about; a log
 framework integration (a feature flag later if a customer asks).
 
 ## 4. API sketch (illustrative; names are not final)

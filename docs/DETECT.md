@@ -1,6 +1,6 @@
 # Detector design: screening text for secrets we were not told about
 
-Status: **design only. No code and no public API until the PM has read this** (PM [TASK] 2026-11-14). Written 2026-11-14 by the
+Status: **design only. No code and no public API until the patent re-sweep gate (section 10) is cleared and the PM has read the result** (PM [TASK] 2026-11-14, restated 2026-11-14). Written 2026-11-14 by the
 `redactant` lane. Facts about redactant were read at `origin/main` `6f3a653` (0.1.6; 0.1.2 is the published head). Facts about
 other tools and crates are marked **UNVERIFIED** unless a version is quoted from `cargo search` on 2026-11-14.
 
@@ -13,8 +13,9 @@ we hold", exactly, and nothing else.
 
 This note designs the other half: text that **looks like** a secret although nobody registered it (a pasted API token, a PEM
 private key, `postgres://user:pass@host`). `DESIGN.md` section 3 listed this as **out of scope for v1** ("detecting secrets by
-guessing"). A consumer now exists, so the question is reopened, but only as a design. Adopting it amends that section; the PM
-decides.
+guessing"). A consumer now exists. **PM ruling 2026-11-14 (Q1, yes, narrowly):** section 3 is amended to *shape-based screening
+behind a feature, never on by default, never a claim of completeness*, with no code and no public API until the re-sweep gate
+is cleared and the PM has read the result.
 
 It is **not** a way to know that text is safe. A negative result means "none of the shapes below matched", never "no secret".
 
@@ -156,8 +157,10 @@ verdict the PM accepts.*
 - **Routes:** the first sweep ran US-only Google Patents. For this family add **USPTO full-text** and **Espacenet** (named as
   not run last time), and **assignee searches** on the vendors that sell secret scanning (not read for this note; the search
   targets are named, no claim about them is made here). Independent claims of the closest hits are read whole.
+- **Scope ruling (PM, 2026-11-14, Q2: yes):** the wider routes above are approved. A `needs-review` is read by the PM and CireSnave.
 - **Output:** an update to `PATENT-SWEEP.md` (new ideas, queries, hits, verdicts), `needs-review` if any independent claim reads
-  on a design element, and a design change to avoid it before code starts. Not legal advice; no attorney, as before.
+  on a design element, and a design change to avoid it before code starts. Not legal advice; **there is no attorney, so a verdict
+  is "outside as read" with the claim text quoted, never "clear"**. The IBM US11341270B2 entropy claim stays the watch item.
 
 ## 11. Slices (proposed, each its own PR, version numbers allocated by the PM)
 
@@ -165,16 +168,18 @@ verdict the PM accepts.*
 method. 3. `Jwt` and the provider table with sources and dates. 4. Opt-in `KeyValueSecret` and `HighEntropy` with a fitted,
 published threshold and corpus. Each slice is stoppable: slice 2 alone already serves a refuse-the-write consumer.
 
-## 12. Questions
+## 12. Questions and answers
 
-For the PM / CireSnave:
+For the PM / CireSnave, **answered 2026-11-14 (PM [TASK] redactant-detect-answers):**
 
-1. Does this amend `DESIGN.md` section 3 ("detecting secrets by guessing is out of scope for v1")? Recommendation: yes, narrowly:
-   shape-based screening behind a feature, never on by default, never a claim of completeness.
-2. Is the patent re-sweep scope (adding USPTO full-text, Espacenet and assignee searches) acceptable, and who reads a
-   `needs-review`?
+1. Does this amend `DESIGN.md` section 3? **YES, narrowly:** shape-based screening behind a feature, never on by default, never a
+   claim of completeness; no code and no public API until the patent re-sweep gate is cleared and the PM has read the result.
+   (`DESIGN.md` section 3 now says so.)
+2. Is the wider re-sweep scope acceptable, and who reads a `needs-review`? **YES to USPTO full text, Espacenet and assignee
+   searches; the PM and CireSnave read a `needs-review`; verdicts are "outside as read" with the claim text.**
 
-For SageAnt's author:
+For SageAnt's author, **sent 2026-11-14 as one numbered message (numbered 1-5 there); answers are recorded here when they
+arrive, none yet:**
 
 3. Does the refusal need only the **class** or also the **range**? (A range reveals the secret's length to log readers.)
 4. Which classes does a Knowledge Store put actually need? Pasted API tokens and PEM blocks only, or also `password=...` lines?
