@@ -4,7 +4,7 @@ Date: 2026-11-09; Run by: redactant lane, Sonnet 5.5; Method: AI-assisted web se
 then the independent claims of the closest hits read with `tools/patent-claims.py` (Google Patents pages); NOT legal advice; NOT a
 freedom-to-operate opinion. There is no attorney. Process: `C:\Projects\PATENT-SWEEP-PROCESS.md`.
 
-**Status: first pass COMPLETE for the routes run; no `needs-review`. A second pass on the (unbuilt) detector family is appended at the end (2026-11-14): one decision requested, on the entropy class.** Routes NOT run: USPTO full-text, Espacenet, WIPO, assignee
+**Status: first pass COMPLETE for the routes run; no `needs-review`. A second pass on the (unbuilt) detector family is appended at the end (2026-11-14): one decision on the entropy class, answered: not built.** Routes NOT run: USPTO full-text, Espacenet, WIPO, assignee
 searches, non-US grants. The PM accepted this scope as enough for the first publish under the portfolio rule (PM message to the lane, 2026-11-09; a reading, not legal advice); the limits below stand.
 
 Scope: everything in the crate at 0.1.1: `Secret<T>`, `Scrubber`, `Fingerprint`/`FingerprintKey`, the `serde` feature, and the
@@ -163,7 +163,7 @@ useful depth, not as free.
 ## Design constraints that come out of this pass (so a later change does not walk into a claim)
 - **Entropy (hits 19, 18, 22; the IBM US11341270B2 watch item stands):** if `HighEntropy` is built, its threshold is a **fixed
   constant**, never derived from the scanned text's own entropy (hit 19), and the detector never writes a rewritten copy of the
-  document (hit 19's "second document"). **Recommendation below: do not build it.**
+  document (hit 19's "second document"). **Decided below: it is not built.**
 - **Streaming (hit 18):** the detector scans one complete `&str` per call. No state is carried between calls, no "last N chunks",
   no byte-run bitmaps, no address ranges. A caller that chunks its input (SageAnt says its chunks are UTF-8 NFC) screens each
   chunk on its own; carrying a run across chunk boundaries inside redactant would be hit 18's claim.
@@ -175,13 +175,17 @@ useful depth, not as free.
 - **Results (hit 27):** a `Finding` is a class and at most a range; it never holds the text.
 - These add to the first pass's constraints (no time window, no entropy-split registration, no tag parser, no log monitor).
 
-## Needs review (to the PM, then CireSnave)
+## Needs review (to the PM, then CireSnave): DECIDED 2026-11-14
+**PM decision (patent-cautious, listed for CireSnave): `HighEntropy` is NOT built.** Nobody asked and four entropy-related patents are
+Active (US9619670B1 to 2035, US9336381B1 to 2034, US12299131B2, US11341270B2). **Standing non-goal (PM): no owner notification in the
+`Scrubber` or any put path (US20230063214A1).** The PM and CireSnave cannot run USPTO full text or Espacenet either, so the limit
+stated under "Routes actually run, and not run" stands and the work moves on. The reasoning that led to the decision follows.
+
 The **entropy** idea is the thin one. Two Active patents (hits 18 and 19,
 Microsoft to 2035 and Amazon to 2034) claim entropy-based credential detection, a third (hit 22) requires "entropy verification",
 and the first pass's IBM US11341270B2 claim turns on an entropy threshold. A fixed-threshold class sits outside each as read,
 but the margin is the difference between a fixed and a derived threshold and between one `&str` and stored chunks, which a
-reader with a lawyer's eye should see. **Decision requested: do not build `HighEntropy` (nobody asked for it; SageAnt's default
-set excludes it), or build it only after CireSnave has read hits 18, 19 and 22.** The default classes (PEM header, URL
+reader with a lawyer's eye should see. **Decision asked: do not build `HighEntropy`, or build it only after CireSnave has read hits 18, 19 and 22. Answered: do not build it.** The default classes (PEM header, URL
 credentials, JWT structure, provider prefixes) rest on anchored patterns and are outside every independent claim read here as I read them; that is a
 reading of 11 documents, not a clearance.
 
