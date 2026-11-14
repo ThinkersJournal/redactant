@@ -8,3 +8,4 @@
 | 4 | `serde` feature (R2, R3) | `docs/DESIGN.md` section 7 | done (PR #4, 0.0.4) | - |
 | 5 | ConfigurAnt row 27 adoption; SecretAnt stub removal | `docs/DESIGN.md` section 9 | unblocked: 0.1.2 published and tagged v0.1.2 (2026-11-09); consumer lanes adopt (ConfigurAnt row 27 adopted 0.1.2; SecretAnt consuming it) | consumer lanes; redactant answers API questions |
 | 6 | Field-level derive for structured redaction (AuditAnt); the row 1 types must allow it without breaking changes | `docs/DESIGN.md` Q4 | redactant-side design written (`docs/DERIVE.md`, 2026-11-12); build deferred | AuditAnt author's answers (DERIVE.md section 9); slice 1 needs none |
+| 7 | Detector: screen text for secret shapes, class only (SageAnt asked 2026-11-14) | `docs/DETECT.md` | design written; no code and no API until the PM reads it and a patent re-sweep of the family has a verdict; v1 for SageAnt is the registered route (`Scrubber::appears_in`) | PM; patent re-sweep |

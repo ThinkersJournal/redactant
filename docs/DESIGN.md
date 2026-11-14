@@ -31,8 +31,10 @@ In v1:
    rule that each rule's test has a *negative control* (a deliberately leaking mutation that must make the test fail).
 
 Not in v1 (stated so nobody assumes them): encryption or storage of secrets (that is SecretAnt); locking memory
-(`mlock`); detecting secrets by guessing (entropy or regex scanners); redacting values we were never told about; a log
+(`mlock`); detecting secrets by guessing (entropy or regex scanners), **amended 2026-11-14 (PM): shape-based screening behind a feature, never on by default, never a claim of completeness, and no code until the patent re-sweep gate is cleared; see `DETECT.md`. Entropy-based detection is not built at all (PM 2026-11-14, patents)**; redacting values we were never told about; a log
 framework integration (a feature flag later if a customer asks).
+
+**Standing non-goal (PM 2026-11-14, US20230063214A1):** the `Scrubber` and any put-path use of it never attach an owner or entity to a registered secret and never notify one on a match. Detection stays a yes/no (or a class) returned to the caller.
 
 ## 4. API sketch (illustrative; names are not final)
 
