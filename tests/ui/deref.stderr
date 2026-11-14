@@ -1,5 +1,5 @@
 error[E0614]: type `Secret<String>` cannot be dereferenced
- --> tests/ui/deref.rs:4:21
+ --> tests/ui/deref.rs:5:21
   |
-4 |     let _v: &str = &*s;
+5 |     let _v: &str = &*s;
   |                     ^^ can't be dereferenced
