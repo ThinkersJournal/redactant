@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.9 — docs: patent re-sweep of the detector family (design only)
+
+Docs only: `PATENT-SWEEP.md` gains a second pass for the unbuilt detector family of `docs/DETECT.md` (six queries, eleven documents read whole, verdicts "outside as read" with the limitation quoted, routes not run stated, design constraints, and one decision requested about the entropy class). No code and no public API change.
+
 ## 0.1.8 — docs: detector design (ROADMAP row 7)
 
 Docs only: `docs/DETECT.md` designs shape-based screening of text for secrets nobody registered (match classes, results that never carry matched text, regex and entropy dependency options, false-positive policy, test plan with negative controls and run-time-assembled fixtures, patent re-sweep plan, questions for the PM and SageAnt); `docs/DESIGN.md` section 3 is amended per the PM (2026-11-14): shape-based screening behind a feature, never on by default, never a claim of completeness, no code until the re-sweep gate is cleared; ROADMAP row 7 points at it. No code and no public API change.
