@@ -1,3 +1,0 @@
-kind: ci: repin the portfolio caller to coderipper 42dd497; declare api_budget, owns_data, adapter role
----
-CI and declaration only: the advisory `portfolio` job called coderipper `portfolio.yml@30e012b7` (CodeRipper 0.9.6), which cannot parse the `[architecture]` table declared in 0.1.6. It now calls the merge commit of coderipper#313 (`42dd497d`, CodeRipper 0.43.49). `.coderipper.toml` also declares what is true of the crate: an `api_budget` of 4 for `secret` (counted by hand), `owns_data` for the placeholder text, and `fingerprint` as an adapter over hmac and sha2; no composition root is declared because the library wires nothing, so ARC-012 does not run. No code change.
