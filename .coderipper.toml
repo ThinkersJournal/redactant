@@ -8,7 +8,7 @@ style = "layered"
 # States an input this crate has none of, so ARC-012 runs with 0 sites by declaration instead of reading "not run" (coderipper 0.43.77).
 none = ["composition"]
 
-# pure = true: no component names a file, network, environment, process, clock, randomness or thread API (EFX-001; checked by grep over src/ at 623936f). The fingerprint key is caller-supplied, never generated here.
+# pure = true on secret, scrubber, api (not fingerprint: its declared role is adapter, and coderipper refuses pure on an adapter): none of them names a file, network, environment, process, clock, randomness or thread API (EFX-001; checked by grep over src/ at 623936f). The fingerprint key is caller-supplied, never generated here.
 [[architecture.component]]
 name = "secret"
 paths = ["src/secret.rs"]
@@ -21,7 +21,6 @@ owns_data = ["<redacted>"]
 [[architecture.component]]
 name = "fingerprint"
 paths = ["src/fingerprint.rs"]
-pure = true
 # Wraps the outside crates hmac and sha2 behind Fingerprint and FingerprintKey.
 role = "adapter"
 
