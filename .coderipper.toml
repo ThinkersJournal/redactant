@@ -8,9 +8,11 @@ style = "layered"
 # States an input this crate has none of, so ARC-012 runs with 0 sites by declaration instead of reading "not run" (coderipper 0.43.77).
 none = ["composition"]
 
+# pure = true on secret, scrubber, api (not fingerprint: its declared role is adapter, and coderipper refuses pure on an adapter): none of them names a file, network, environment, process, clock, randomness or thread API (EFX-001; checked by grep over src/ at 623936f). The fingerprint key is caller-supplied, never generated here.
 [[architecture.component]]
 name = "secret"
 paths = ["src/secret.rs"]
+pure = true
 role = "policy"
 volatility = "stable"
 # The one place that names the placeholder text: no other file under src/ writes the literal (PLACEHOLDER is imported from here).
@@ -25,11 +27,13 @@ role = "adapter"
 [[architecture.component]]
 name = "scrubber"
 paths = ["src/scrubber.rs"]
+pure = true
 role = "policy"
 
 [[architecture.component]]
 name = "api"
 paths = ["src/lib.rs"]
+pure = true
 role = "policy"
 
 [[architecture.layer]]
