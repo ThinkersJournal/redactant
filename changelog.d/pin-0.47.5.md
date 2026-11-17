@@ -1,3 +1,0 @@
-kind: repin portfolio to coderipper 0.47.5; tag components pure
----
-Moves the portfolio caller in `ci.yml` to coderipper c72a6e0 (the workflow that installs 0.47.5). `migrate-rule-ids.py` reports nothing to migrate: `.coderipper.toml` names no check or blocking rule and no file calls `coderipper check <old>`. Coderipper 0.47.5 added EFX-001, which did not run (no component tagged `pure`), so `secret`, `scrubber` and `api` are tagged `pure = true` (not `fingerprint`: its declared role is adapter, which coderipper refuses to combine with pure) in `.coderipper.toml`: no source file names a file, network, environment, process, clock, randomness or thread API (grep over `src/`). No code change; verified by reading the whole Portfolio job on this PR.

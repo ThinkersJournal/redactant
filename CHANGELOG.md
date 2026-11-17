@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.12 — repin portfolio to coderipper 0.47.5; tag components pure
+
+Moves the portfolio caller in `ci.yml` to coderipper c72a6e0 (the workflow that installs 0.47.5). `migrate-rule-ids.py` reports nothing to migrate: `.coderipper.toml` names no check or blocking rule and no file calls `coderipper check <old>`. Coderipper 0.47.5 added EFX-001, which did not run (no component tagged `pure`), so `secret`, `scrubber` and `api` are tagged `pure = true` (not `fingerprint`: its declared role is adapter, which coderipper refuses to combine with pure) in `.coderipper.toml`: no source file names a file, network, environment, process, clock, randomness or thread API (grep over `src/`). No code change; verified by reading the whole Portfolio job on this PR.
+
 ## 0.1.11 — coderipper 0.43.77 repin; declare no composition root
 
 Repins the portfolio caller in `ci.yml` to coderipper 58e2f7a (workflow installs 0.43.77) and adds `none = ["composition"]` to `[architecture]` in `.coderipper.toml`: the crate only re-exports and wires nothing, so ARC-012 now runs with 0 sites by declaration instead of reading "not run". The other optional inputs (volatile, api_budget, owns_data) stay declared. No code change; verified by reading the whole portfolio job log on this PR.
