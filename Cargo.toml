@@ -14,7 +14,7 @@ categories = ["cryptography", "rust-patterns"]
 # Enables the compile_fail (trybuild) test target; CI runs it in its own job on a pinned rustc.
 ui-tests = []
 # Serialize writes the placeholder, never the value; Deserialize reads a value into a Secret.
-serde = ["dep:serde"]
+serde = ["dep:serde", "dep:erased-serde"]
 
 [[test]]
 name = "compile_fail"
@@ -23,6 +23,7 @@ required-features = ["ui-tests"]
 [dependencies]
 zeroize = "1.9.1"
 serde = { version = "1.0.229", optional = true, default-features = false }
+erased-serde = { version = "0.4.11", optional = true }
 hmac = "0.13.0"
 sha2 = "0.11.1"
 

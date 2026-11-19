@@ -1,6 +1,6 @@
 # Field-level derive: what RedactAnt needs and offers (ROADMAP row 6)
 
-Status: **design, nothing built.** Written 2026-11-12 by the `redactant` lane on the PM's [TASK]. Independent of AuditAnt:
+Status: **design; slice 1 (hand-written `Redact`, no macro) built on branch `lane-work` 2026-11-19; slices 2-4 not built.** Written 2026-11-12 by the `redactant` lane on the PM's [TASK]. Independent of AuditAnt:
 AuditAnt is only a claimed name with no lane and no design (PM, 2026-11-12), so this note says what RedactAnt can offer
 any consumer that wants *structured* redaction (a whole struct or enum, field by field) and lists in section 9 what only
 that consumer's author can decide. Code below is illustrative; names are not final. Facts about the shipped types were
@@ -214,3 +214,12 @@ Slice 1 is unblocked; the derive (slice 2) now has its inputs. Answers, and what
 7. Forced decision per field is the documented style; a struct-level `default = "redact"` stays allowed but is not recommended.
 8. `describe` runs on the caller's thread; the borrowed `Kept(&dyn ...)` sketch is enough provided it is serialisable (answer 2).
 9. Other consumers reach `Redact` through AuditAnt only (AuditAnt marks this UNVERIFIED); keep the trait narrow. The serde sink adapter is not needed by AuditAnt.
+
+## 10. Slice 1 as built (2026-11-19), where it differs from the sketches above
+
+- `Redact` has `describe_at(&self, path, cx, sink)` (nested values need the path so far) and a provided `describe(&self, cx, sink)` that starts at the root.
+- `Kept` takes `&dyn Keep`; under feature `serde`, `Keep: Debug + erased_serde::Serialize` (9b answer 2), so a sink can serialise kept values with their types. `erased-serde` is an optional dependency of that feature.
+- `Context` carries the optional key and an optional caller-supplied `key_id` (9b answer 3); `Context::fingerprint(bytes)` returns `Fingerprint` or, with no key, `Redacted`.
+- `Segment` and `Disposition` are `#[non_exhaustive]`. `None` in an `Option` reports nothing.
+- The `redacted()` view prints flat `path=value` pairs (`password=<redacted>, inner.note=<redacted>, tags[0].note=<redacted>`), not the nested `Type { .. }` form in section 2; it is deterministic (9b answer 5).
+- D1-D5 are in `tests/redact_canary.rs`; the `Kept(&Secret)` compile-fail case is `tests/ui/keep_secret.rs` with pass twin `tests/ui-pass/keep_value.rs`. Not yet done: the semver check against 0.1.2 in CI and the `PATENT-SWEEP.md` re-run for this capability family.
