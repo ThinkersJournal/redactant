@@ -33,7 +33,7 @@ jobs:
         with:
           toolchain: stable
           components: clippy
-      - run: cargo clippy --all-targets --all-features -- -D warnings
+      - run: cargo clippy --workspace --all-targets --all-features -- -D warnings
 
   test:
     name: test (${{ matrix.os }})
@@ -50,10 +50,10 @@ jobs:
       # Every test target runs here EXCEPT compile_fail (required-features = ["ui-tests"], so it is off unless asked for;
       # not --all-features, which would turn it on). Its .stderr snapshots are rustc-version specific: own job below.
       # --features serde, not --all-features: that would also enable ui-tests (compile_fail).
-      - run: cargo test --no-fail-fast --features serde
+      - run: cargo test --workspace --no-fail-fast --features serde,derive
 
   # R6 compile-fail (trybuild): the snapshots are pinned to one rustc, so a stable bump cannot redden CI.
-  # Refresh with `TRYBUILD=overwrite cargo +1.99.1 test --features ui-tests --test compile_fail` when deliberately moving the pin.
+  # Refresh with `TRYBUILD=overwrite cargo +1.99.1 test --features ui-tests,derive --test compile_fail_derive` (and `--features ui-tests --test compile_fail`) when deliberately moving the pin.
   compile-fail:
     name: compile-fail (rustc 1.99.1)
     runs-on: ubuntu-latest
@@ -63,6 +63,7 @@ jobs:
         with:
           toolchain: 1.99.1
       - run: cargo test --features ui-tests --test compile_fail
+      - run: cargo test --features ui-tests,derive --test compile_fail_derive
 
   doc:
     name: doc

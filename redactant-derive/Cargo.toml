@@ -1,0 +1,18 @@
+[package]
+name = "redactant-derive"
+version = "0.1.12"
+edition = "2024"
+rust-version = "1.88"
+description = "Derive macro for redactant's `Redact` trait: every field of a record states what it may reveal."
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/ThinkersJournal/redactant"
+keywords = ["secrets", "redaction", "derive", "logging", "audit"]
+categories = ["development-tools", "rust-patterns"]
+
+[lib]
+proc-macro = true
+
+[dependencies]
+proc-macro2 = "1.0.107"
+quote = "1.0.47"
+syn = "3.0.10"

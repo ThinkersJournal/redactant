@@ -1,0 +1,5 @@
+error: conflicting redact options on one field: state exactly one
+ --> tests/ui-derive/conflict.rs:4:27
+  |
+4 | struct S { #[redact(keep, fingerprint)] a: String }
+  |                           ^^^^^^^^^^^

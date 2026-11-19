@@ -12,3 +12,6 @@ pub use fingerprint::{Fingerprint, FingerprintKey, KeyError, MIN_KEY_LEN};
 pub use redact::{Context, Disposition, Keep, Redact, RedactedView, Segment, Sink};
 pub use scrubber::{MIN_SECRET_LEN, RegisterError, Scrubber};
 pub use secret::{PLACEHOLDER, Secret};
+
+#[cfg(feature = "derive")]
+pub use redactant_derive::Redact;

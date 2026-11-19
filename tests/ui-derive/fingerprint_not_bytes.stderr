@@ -1,0 +1,8 @@
+error[E0277]: the trait bound `u32: AsRef<[u8]>` is not satisfied
+ --> tests/ui-derive/fingerprint_not_bytes.rs:4:12
+  |
+4 | struct S { #[redact(fingerprint)] a: u32 }
+  |            -^^^^^^^^^^^^^^^^^^^^^^^
+  |            |
+  |            the trait `AsRef<[u8]>` is not implemented for `u32`
+  |            required by a bound introduced by this call

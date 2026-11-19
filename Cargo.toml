@@ -1,3 +1,6 @@
+[workspace]
+members = ["redactant-derive"]
+
 [package]
 name = "redactant"
 version = "0.1.13"
@@ -15,15 +18,26 @@ categories = ["cryptography", "rust-patterns"]
 ui-tests = []
 # Serialize writes the placeholder, never the value; Deserialize reads a value into a Secret.
 serde = ["dep:serde", "dep:erased-serde"]
+# `#[derive(Redact)]` (re-exported from redactant-derive, which carries this crate's version).
+derive = ["dep:redactant-derive"]
 
 [[test]]
 name = "compile_fail"
 required-features = ["ui-tests"]
 
+[[test]]
+name = "compile_fail_derive"
+required-features = ["ui-tests", "derive"]
+
+[[test]]
+name = "derive"
+required-features = ["derive"]
+
 [dependencies]
 zeroize = "1.9.1"
 serde = { version = "1.0.229", optional = true, default-features = false }
 erased-serde = { version = "0.4.11", optional = true }
+redactant-derive = { version = "0.1.12", path = "redactant-derive", optional = true }
 hmac = "0.13.0"
 sha2 = "0.11.1"
 

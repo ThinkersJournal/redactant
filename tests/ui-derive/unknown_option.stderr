@@ -1,0 +1,5 @@
+error: `skip` is not offered: a field the sink never sees is a field no reviewer can see was dropped on purpose; use #[redact] to withhold it
+ --> tests/ui-derive/unknown_option.rs:4:21
+  |
+4 | struct S { #[redact(skip)] a: String }
+  |                     ^^^^
