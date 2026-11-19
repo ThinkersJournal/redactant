@@ -37,7 +37,7 @@ required-features = ["derive"]
 zeroize = "1.9.1"
 serde = { version = "1.0.229", optional = true, default-features = false }
 erased-serde = { version = "0.4.11", optional = true }
-redactant-derive = { version = "0.1.12", path = "redactant-derive", optional = true }
+redactant-derive = { version = "0.1.13", path = "redactant-derive", optional = true }
 hmac = "0.13.0"
 sha2 = "0.11.1"
 
