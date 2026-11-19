@@ -199,3 +199,18 @@ the regression proof that row 1 did not move); a macro-hygiene test (derive insi
 
 Until these are answered, nothing above is built; slice 1 is safe to start without them (it adds no macro and no
 AuditAnt-specific choice), so the PM can release it independently if a second consumer appears first.
+
+
+## 9b. AuditAnt's answers (auditant `docs/DESIGN.md` section 8, read at its origin/main 2026-11-19)
+
+Slice 1 is unblocked; the derive (slice 2) now has its inputs. Answers, and what each changes here:
+
+1. Events are typed structs: the derive fits as designed.
+2. Kept values must be serialisable: `Keep` implies `serde::Serialize` under feature `serde`. **Changes slice 1** (the `Keep` bound).
+3. One fingerprint key per trail with a `key_id` in every record; keys and rotation are AuditAnt's. **Changes `Context`**: it may need to carry a caller-supplied key id so a sink can record it.
+4. Field existence is not sensitive in v1: no `Omit` disposition, section 3 "no skip" stands.
+5. The chain covers the redacted form, with the disposition tag and `key_id` inside the hashed bytes: redaction output must be deterministic. A test for it joins section 6.
+6. A changed disposition is a schema change: the derive emits a per-type schema fingerprint (type name + field paths + dispositions). **Changes slice 2.**
+7. Forced decision per field is the documented style; a struct-level `default = "redact"` stays allowed but is not recommended.
+8. `describe` runs on the caller's thread; the borrowed `Kept(&dyn ...)` sketch is enough provided it is serialisable (answer 2).
+9. Other consumers reach `Redact` through AuditAnt only (AuditAnt marks this UNVERIFIED); keep the trait narrow. The serde sink adapter is not needed by AuditAnt.
