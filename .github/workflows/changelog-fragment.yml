@@ -23,3 +23,5 @@ jobs:
           persist-credentials: false
       - name: One fragment, or a manual bump
         run: python3 tools/check-fragment.py "origin/${{ github.base_ref }}"
+      - name: check-fragment tests
+        run: python3 tools/test_check_fragment.py

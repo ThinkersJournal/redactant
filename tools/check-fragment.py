@@ -11,6 +11,11 @@ Compares HEAD with the merge base of <base-ref>. A PR must do exactly one of:
     no fragment.
 
 Doing both, adding two fragments, or doing neither fails, with the reason. Standard library only.
+
+One exception to "leave every version alone": a manifest the PR ADDS (a new crate in the workspace) must carry a version
+line, and it is not a bump when that version equals the project's current version at the merge base (the stamp then moves
+every crate together). A real bump of an existing crate, or a new manifest whose version differs from the base version,
+still counts as a bump. Tests: tools/test_check_fragment.py.
 """
 import re
 import subprocess
@@ -27,6 +32,29 @@ def version_lines(diff):
         if re.match(r'^[+-]\s*version\s*=\s*"\d+\.\d+\.\d+[^"]*"', l)
         and not re.search(r"path\s*=|git\s*=|registry\s*=", l)
     ]
+
+
+def base_version(base):
+    """The project's current version at `base`: root [package] or [workspace.package] version, else None."""
+    try:
+        text = git("show", f"{base}:Cargo.toml")
+    except subprocess.CalledProcessError:
+        return None
+    for table in ("workspace.package", "package"):
+        m = re.search(r"(?ms)^\[" + re.escape(table) + r"\]\s*$(.*?)(?=^\[|\Z)", text)
+        if m:
+            v = re.search(r'(?m)^\s*version\s*=\s*"(\d+\.\d+\.\d+[^"]*)"', m.group(1))
+            if v:
+                return v.group(1)
+    return None
+
+
+def is_bump(diff, added_manifest, current):
+    """Does this manifest's diff change a crate version? A manifest added at the current version does not."""
+    lines = version_lines(diff)
+    if added_manifest and current:
+        lines = [l for l in lines if not re.match(r'^\+\s*version\s*=\s*"' + re.escape(current) + '"', l)]
+    return bool(lines)
 
 
 def judge(added_fragments, version_changed):
@@ -46,8 +74,10 @@ def main():
     base = git("merge-base", sys.argv[1], "HEAD").strip()
     names = git("diff", "--name-status", "--diff-filter=A", base, "HEAD").splitlines()
     added = [n.split("\t", 1)[1] for n in names if re.match(r"^A\tchangelog\.d/(?!README\.md$)[^/]+\.md$", n)]
-    manifests = [p for p in git("diff", "--name-only", base, "HEAD").splitlines() if p.endswith("Cargo.toml")]
-    changed = any(version_lines(git("diff", "-U0", base, "HEAD", "--", p)) for p in manifests)
+    status = [n.split("	", 1) for n in git("diff", "--name-status", base, "HEAD").splitlines()]
+    manifests = [(st[0], path) for st, path in status if path.endswith("Cargo.toml")]
+    current = base_version(base)
+    changed = any(is_bump(git("diff", "-U0", base, "HEAD", "--", p), st == "A", current) for st, p in manifests)
     why = judge(added, changed)
     if why:
         print("check-fragment: " + why)
