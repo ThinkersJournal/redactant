@@ -50,6 +50,11 @@ impl FingerprintKey {
         }
         Ok(FingerprintKey(Secret::new(key.to_vec())))
     }
+
+    /// The keyed fingerprint of `data` under this key (the same tag [`Secret::fingerprint`] computes).
+    pub fn tag(&self, data: &[u8]) -> Fingerprint {
+        tag(self.0.expose().as_slice(), data)
+    }
 }
 
 impl fmt::Debug for FingerprintKey {
@@ -94,7 +99,7 @@ fn tag(key: &[u8], data: &[u8]) -> Fingerprint {
 impl<T: Zeroize + AsRef<[u8]>> Secret<T> {
     /// The keyed fingerprint of this secret under `key`.
     pub fn fingerprint(&self, key: &FingerprintKey) -> Fingerprint {
-        tag(key.0.expose().as_slice(), self.expose().as_ref())
+        key.tag(self.expose().as_ref())
     }
 }
 

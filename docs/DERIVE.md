@@ -1,6 +1,6 @@
 # Field-level derive: what RedactAnt needs and offers (ROADMAP row 6)
 
-Status: **design, nothing built.** Written 2026-11-12 by the `redactant` lane on the PM's [TASK]. Independent of AuditAnt:
+Status: **design; slice 1 (hand-written `Redact`, no macro) built on branch `lane-work` 2026-11-19; slices 2-4 not built.** Written 2026-11-12 by the `redactant` lane on the PM's [TASK]. Independent of AuditAnt:
 AuditAnt is only a claimed name with no lane and no design (PM, 2026-11-12), so this note says what RedactAnt can offer
 any consumer that wants *structured* redaction (a whole struct or enum, field by field) and lists in section 9 what only
 that consumer's author can decide. Code below is illustrative; names are not final. Facts about the shipped types were
@@ -199,3 +199,27 @@ the regression proof that row 1 did not move); a macro-hygiene test (derive insi
 
 Until these are answered, nothing above is built; slice 1 is safe to start without them (it adds no macro and no
 AuditAnt-specific choice), so the PM can release it independently if a second consumer appears first.
+
+
+## 9b. AuditAnt's answers (auditant `docs/DESIGN.md` section 8, read at its origin/main 2026-11-19)
+
+Slice 1 is unblocked; the derive (slice 2) now has its inputs. Answers, and what each changes here:
+
+1. Events are typed structs: the derive fits as designed.
+2. Kept values must be serialisable: `Keep` implies `serde::Serialize` under feature `serde`. **Changes slice 1** (the `Keep` bound).
+3. One fingerprint key per trail with a `key_id` in every record; keys and rotation are AuditAnt's. **Changes `Context`**: it may need to carry a caller-supplied key id so a sink can record it.
+4. Field existence is not sensitive in v1: no `Omit` disposition, section 3 "no skip" stands.
+5. The chain covers the redacted form, with the disposition tag and `key_id` inside the hashed bytes: redaction output must be deterministic. A test for it joins section 6.
+6. A changed disposition is a schema change: the derive emits a per-type schema fingerprint (type name + field paths + dispositions). **Changes slice 2.**
+7. Forced decision per field is the documented style; a struct-level `default = "redact"` stays allowed but is not recommended.
+8. `describe` runs on the caller's thread; the borrowed `Kept(&dyn ...)` sketch is enough provided it is serialisable (answer 2).
+9. Other consumers reach `Redact` through AuditAnt only (AuditAnt marks this UNVERIFIED); keep the trait narrow. The serde sink adapter is not needed by AuditAnt.
+
+## 10. Slice 1 as built (2026-11-19), where it differs from the sketches above
+
+- `Redact` has `describe_at(&self, path, cx, sink)` (nested values need the path so far) and a provided `describe(&self, cx, sink)` that starts at the root.
+- `Kept` takes `&dyn Keep`; under feature `serde`, `Keep: Debug + erased_serde::Serialize` (9b answer 2), so a sink can serialise kept values with their types. `erased-serde` is an optional dependency of that feature.
+- `Context` carries the optional key and an optional caller-supplied `key_id` (9b answer 3); `Context::fingerprint(bytes)` returns `Fingerprint` or, with no key, `Redacted`.
+- `Segment` and `Disposition` are `#[non_exhaustive]`. `None` in an `Option` reports nothing.
+- The `redacted()` view prints flat `path=value` pairs (`password=<redacted>, inner.note=<redacted>, tags[0].note=<redacted>`), not the nested `Type { .. }` form in section 2; it is deterministic (9b answer 5).
+- D1-D5 are in `tests/redact_canary.rs`; the `Kept(&Secret)` compile-fail case is `tests/ui/keep_secret.rs` with pass twin `tests/ui-pass/keep_value.rs`. Re-sweep 3 in `PATENT-SWEEP.md` covers this family (2026-11-19). `cargo semver-checks` against 0.1.2 passes locally (default and `serde` features); adding it to CI is not done.

@@ -196,3 +196,75 @@ reading of 11 documents, not a clearance.
 - Software idioms (regex scanning, entropy as a heuristic) are widely published in open-source tools; that is not a patent search
   and is not relied on for any verdict.
 - Re-sweep again before any detector code merges if the design changes, and at the latest by 2027-11-09 with the rest.
+
+---
+
+# Re-sweep 3: structured redaction / field-level derive (slice 1 built) @ f41322e
+
+Date: 2026-11-19; Run by: redactant lane, Sonnet 5.5; scope: the capability family added by `docs/DERIVE.md` slice 1 (PM condition:
+re-sweep at slice 1). Same method and limits as the earlier passes: AI-assisted search, **NOT legal advice, NOT a freedom-to-operate
+opinion, no attorney**. **Verdict wording (PM 2026-11-14): "outside as read", never "clear".** ⚠️ **Claims below were read by a
+fetch subagent that was barred from quoting more than 125 characters, so each independent claim is an element-by-element
+paraphrase, not verbatim text; a reader who relies on a verdict should open the claims on the page.** The PM has not yet read this.
+
+## Ideas swept (structured redaction)
+12. A type declares, per field, whether its value is withheld, replaced by a keyed tag, or shown, and a writer receives each
+    field's path with that disposition (hand-written now, derived later; no inference from the data).
+13. A keyed-hash tag of a field value so equal values correlate without the value, withheld (not hashed bare) when no key is supplied.
+14. Walking a nested record (struct, sequence, map) and reporting field paths to a log or audit writer.
+
+## Routes actually run, and not run
+Run: three Google Patents queries through the web-search tool (below) and the independent claims of six documents read by the fetch
+agent. **Not run:** USPTO full text, Espacenet, WIPO, assignee searches. Absence of a hit is absence of a hit.
+
+## Queries (WebSearch limited to patents.google.com; 2026-11-19)
+| # | Idea | Query |
+|---|---|---|
+| Q15 | 12 | `patent per-field annotation of data structure fields as sensitive, redact or hash field when serializing log record, compile-time enforcement every field must declare disposition` |
+| Q16 | 13 | `patent masking sensitive fields in audit log event replacing with keyed hash pseudonym so equal values can be correlated, withhold field when key unavailable` |
+| Q17 | 14 | `patent traversing object fields by reflection or attributes to produce sanitized representation with sensitive attribute values removed before logging, field path reported to writer` |
+
+Positive control: each query returned real log-redaction and field-masking patents, so the search reaches the field. **No hit
+surfaced for a compile-time requirement that every field declare a disposition, nor for "withhold when no key".** That is absence of
+hits, not of patents.
+
+## Hits (independent claims paraphrased from the page; status and dates are Google Patents' fields)
+| # | patent | title | assignee | status | overlap | what the independent claim requires that we do not do | verdict |
+|---|---|---|---|---|---|---|---|
+| 29 | US20170149793A1 (granted as US10326772B2) | Systems and methods for anonymizing log entries | Symantec, now CA Inc | Active; adj. expiry 2036-02-01 | applies an anonymization policy to a field of log entries, options include one-way hash | claims 1, 10, 19: **detect a data pattern across a plurality of log entries**, identify a field holding variable data, **evaluate that field to decide whether it contains sensitive data**, then apply the policy. We do not look at data or across entries: the author states each field's disposition | **outside as read** (watch: no runtime inference of which fields are sensitive from the data or from repeated entries) |
+| 30 | US9552272B1 | Utility to instantly protect sensitive information for an application log at runtime | Symantec, now DigiCert | Active; anticipated expiry 2031-07-29 | recursive walk of a composite message, protects sensitive values before logging | claims 1, 8, 15: **intercept a log-method call of a second application at runtime**, decide simple vs composite, **identify sensitive information without tagging by format pattern, validate it to remove false positives and check exceptional-case patterns**, modify and log. We intercept nothing and identify nothing by pattern inside `describe` | **outside as read** (watch: no interception of other code's log calls; no pattern-based identification in the structured path) |
+| 31 | US10747889B2 | Time window encryption tokenization of data | Salesforce | Active; expiry 2038-12-29 | per-field tokenization of log records | claims 1, 9, 17: a **symmetric-encryption token** under a key with a tokenizing window and a **detokenizing window**, a second key for a later window. Our fingerprint is a one-way 4-byte HMAC tag, not reversible, and RedactAnt holds no keys or windows | **outside as read** (watch: no time-windowed keys, no reversible tokens in RedactAnt; AuditAnt owns rotation and `key_id`) |
+| 32 | EP2728508B1 | Dynamic data masking | Tata Consultancy Services | Active (EP); anticipated expiry 2033-10-29 | location paths identify sensitive nodes | claim 1: a response parsed to a **DOM tree**, a masking specification with a corruption flag and a fallback master specification, an intermediate tree with per-node rules | **outside as read** (watch: no DOM or document-tree masking, no masking-specification files with corruption fallback) |
+| 33 | US8539597B2 | Securing sensitive data for cloud computing | IBM | **Expired** (fees), 2031-09-15 | per-field hashing directive marking fields sensitive or transactional | claims 1, 3, 4, 5: cloud round trip and **reconstituting** the record by reversing the obfuscation | expired; outside as read in any case |
+| 34 | US9589146B2 | Hiding sensitive data in log files | IBM, now Airbnb | **Expired** (fees), 2034-06-02 | masks log content | claims 1, 5, 9: an **OS-level interceptor daemon** with a confidence-index analytics engine and a knowledge base updated on each masking | expired; outside as read in any case |
+
+Seen in results and **not read** (no verdict): US9338013B2 / US20150188715A1 / EP2897051A2 (verifiable redactable audit log: hash
+chain and commitments over redacted entries; relevant only to AuditAnt's chain, not to RedactAnt), US7770032B2 / EP1759258A1
+(secure logging with decoy keys), US20090016534A1 (HMAC-chained audit records), US5978475A, US9672347B2, WO2013136324A1,
+US20150302206A1 (sibling of hit 34), US11074366 (automatic masking), and the arXiv paper *Proteus* (not a patent; keyed
+HMAC tokens for correlation in logs, prior art for idea 13).
+
+## Design constraints that come out of this pass (so a later change does not walk into a claim)
+- **No inference (hit 29):** which fields are sensitive is always stated by the author or the field's type. The derive and `redacted()`
+  never examine a value or compare entries to decide; no "detect a pattern across log entries".
+- **No interception (hits 30, 34):** nothing hooks another crate's log calls or writes; the structured path never scans a value for a
+  sensitive format (that stays in `Scrubber`, whose own constraints are above).
+- **No reversible tokens, windows or key custody (hit 31):** fingerprints stay one-way and keyless in RedactAnt; time-windowed keys
+  or a detokenize path would be that claim's shape. Rotation lives in AuditAnt.
+- **No document-tree masking (hit 32):** no DOM, JSON-tree or XML masking specification with path rules and a fallback; the serde
+  adapter (slice 4) writes dispositions through a `Serializer`, it does not mask a parsed tree by rule.
+- **No reconstitution (hit 33, expired):** nothing restores a redacted value.
+- These add to the earlier passes' constraints.
+
+## Needs review (to the PM)
+No verdict needs a decision: all four Active hits are outside as read on a stated element. The thinnest margin is **hit 29**: one
+claim element ("evaluate that field to decide whether it contains sensitive data") is the whole difference from a per-field
+anonymization policy, so any future "auto-detect sensitive fields" feature in the derive is that claim's shape. I recommend the
+standing non-goal: **no data-driven classification inside the structured path.**
+
+## Limitations of this pass
+- Three queries, six documents; claims paraphrased by a subagent under a quoting cap (stated at the top), not read verbatim by me.
+- Statuses and expiries are Google Patents' fields (its status line is "an assumption, not a legal conclusion").
+- Not searched: USPTO full text, Espacenet, WIPO, assignee searches. Absence of hits for a compile-time per-field requirement and for
+  withhold-without-key is absence of hits.
+- Re-sweep before slice 4 (serde adapter) if its design touches tree masking, and at the latest by 2027-11-09 with the rest.
