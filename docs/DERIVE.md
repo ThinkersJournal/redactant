@@ -222,4 +222,4 @@ Slice 1 is unblocked; the derive (slice 2) now has its inputs. Answers, and what
 - `Context` carries the optional key and an optional caller-supplied `key_id` (9b answer 3); `Context::fingerprint(bytes)` returns `Fingerprint` or, with no key, `Redacted`.
 - `Segment` and `Disposition` are `#[non_exhaustive]`. `None` in an `Option` reports nothing.
 - The `redacted()` view prints flat `path=value` pairs (`password=<redacted>, inner.note=<redacted>, tags[0].note=<redacted>`), not the nested `Type { .. }` form in section 2; it is deterministic (9b answer 5).
-- D1-D5 are in `tests/redact_canary.rs`; the `Kept(&Secret)` compile-fail case is `tests/ui/keep_secret.rs` with pass twin `tests/ui-pass/keep_value.rs`. Re-sweep 3 in `PATENT-SWEEP.md` covers this family (2026-11-19). Not yet done: the semver check against 0.1.2 in CI.
+- D1-D5 are in `tests/redact_canary.rs`; the `Kept(&Secret)` compile-fail case is `tests/ui/keep_secret.rs` with pass twin `tests/ui-pass/keep_value.rs`. Re-sweep 3 in `PATENT-SWEEP.md` covers this family (2026-11-19). `cargo semver-checks` against 0.1.2 passes locally (default and `serde` features); adding it to CI is not done.
