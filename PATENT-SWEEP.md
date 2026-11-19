@@ -205,7 +205,7 @@ Date: 2026-11-19; Run by: redactant lane, Sonnet 5.5; scope: the capability fami
 re-sweep at slice 1). Same method and limits as the earlier passes: AI-assisted search, **NOT legal advice, NOT a freedom-to-operate
 opinion, no attorney**. **Verdict wording (PM 2026-11-14): "outside as read", never "clear".** ⚠️ **Claims below were read by a
 fetch subagent that was barred from quoting more than 125 characters, so each independent claim is an element-by-element
-paraphrase, not verbatim text; a reader who relies on a verdict should open the claims on the page.** The PM has not yet read this.
+paraphrase, not verbatim text; a reader who relies on a verdict should open the claims on the page.** PM read this section 2026-11-19 (the document, not the patents).
 
 ## Ideas swept (structured redaction)
 12. A type declares, per field, whether its value is withheld, replaced by a keyed tag, or shown, and a writer receives each
