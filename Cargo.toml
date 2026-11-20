@@ -3,7 +3,7 @@ members = ["redactant-derive"]
 
 [package]
 name = "redactant"
-version = "0.1.13"
+version = "0.1.14"
 edition = "2024"
 rust-version = "1.88"
 description = "Secret values that cannot leak through formatting: blank Display and Debug, an explicit expose(), zeroize on drop."
@@ -37,7 +37,7 @@ required-features = ["derive"]
 zeroize = "1.9.1"
 serde = { version = "1.0.229", optional = true, default-features = false }
 erased-serde = { version = "0.4.11", optional = true }
-redactant-derive = { version = "0.1.13", path = "redactant-derive", optional = true }
+redactant-derive = { version = "0.1.14", path = "redactant-derive", optional = true }
 hmac = "0.13.0"
 sha2 = "0.11.1"
 
