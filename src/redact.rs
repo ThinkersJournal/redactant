@@ -175,6 +175,16 @@ pub trait Redact {
         self.describe_at(&[], cx, sink);
     }
 
+    /// A canonical description of this type's field dispositions (`Name{field:keep,other:nested(..),}`), for a
+    /// consumer that hashes it to notice a changed disposition (DERIVE 9b answer 6). `#[derive(Redact)]` writes it; a
+    /// hand-written impl may leave the default, the empty string, meaning "no schema stated".
+    fn schema() -> String
+    where
+        Self: Sized,
+    {
+        String::new()
+    }
+
     /// A view whose `Display` and `Debug` print each field with its disposition applied, no key.
     fn redacted(&self) -> RedactedView<'_, 'static, Self>
     where
@@ -221,6 +231,10 @@ impl<T: Redact + ?Sized> Redact for Box<T> {
 
 /// `None` reports nothing: there is no value whose disposition could be stated.
 impl<T: Redact> Redact for Option<T> {
+    fn schema() -> String {
+        format!("?{}", T::schema())
+    }
+
     fn describe_at(&self, path: &[Segment<'_>], cx: &Context<'_>, sink: &mut dyn Sink) {
         if let Some(v) = self {
             v.describe_at(path, cx, sink);
@@ -250,12 +264,20 @@ impl<T: Redact> Redact for [T] {
 }
 
 impl<T: Redact> Redact for Vec<T> {
+    fn schema() -> String {
+        format!("[{}]", T::schema())
+    }
+
     fn describe_at(&self, path: &[Segment<'_>], cx: &Context<'_>, sink: &mut dyn Sink) {
         describe_seq(self.iter(), path, cx, sink);
     }
 }
 
 impl<T: Redact, const N: usize> Redact for [T; N] {
+    fn schema() -> String {
+        format!("[{}]", T::schema())
+    }
+
     fn describe_at(&self, path: &[Segment<'_>], cx: &Context<'_>, sink: &mut dyn Sink) {
         describe_seq(self.iter(), path, cx, sink);
     }

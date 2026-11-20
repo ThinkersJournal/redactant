@@ -1,0 +1,22 @@
+error[E0277]: the trait bound `Id: Keep` is not satisfied
+ --> tests/ui-derive/keep_user_type.rs:5:12
+  |
+5 | struct S { #[redact(keep)] a: Id }
+  |            ^^^^^^^^^^^^^^^^^ unsatisfied trait bound
+  |
+help: the trait `Keep` is not implemented for `Id`
+ --> tests/ui-derive/keep_user_type.rs:3:1
+  |
+3 | struct Id(u32);
+  | ^^^^^^^^^
+  = help: the following other types implement trait `Keep`:
+            &T
+            ()
+            (A,)
+            (A, B)
+            (A, B, C)
+            (A, B, C, D)
+            Option<T>
+            String
+          and $N others
+  = note: required for the cast from `&Id` to `&dyn Keep`

@@ -1,0 +1,5 @@
+error: #[derive(Redact)] does not support unions
+ --> tests/ui-derive/union_not_supported.rs:4:7
+  |
+4 | union U { a: u32 }
+  |       ^

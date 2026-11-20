@@ -1,0 +1,5 @@
+error: field `a` of `S` must state what it may reveal: add #[redact(keep)], #[redact(fingerprint)], #[redact] (withhold) or #[redact(nested)]
+ --> tests/ui-derive/unannotated.rs:4:12
+  |
+4 | struct S { a: String }
+  |            ^^^^^^^^^

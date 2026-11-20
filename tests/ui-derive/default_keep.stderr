@@ -1,0 +1,5 @@
+error: `default = "keep"` is not accepted: the safe direction must be the cheap one; annotate each kept field with #[redact(keep)]
+ --> tests/ui-derive/default_keep.rs:4:20
+  |
+4 | #[redact(default = "keep")]
+  |                    ^^^^^^
