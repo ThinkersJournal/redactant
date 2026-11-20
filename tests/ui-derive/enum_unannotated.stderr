@@ -1,0 +1,5 @@
+error: field `x` of `E::A` must state what it may reveal: add #[redact(keep)], #[redact(fingerprint)], #[redact] (withhold) or #[redact(nested)]
+ --> tests/ui-derive/enum_unannotated.rs:4:14
+  |
+4 | enum E { A { x: String } }
+  |              ^^^^^^^^^

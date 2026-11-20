@@ -14,14 +14,14 @@ help: the trait `Redact` is not implemented for `Plain`
   | ^^^^^^^^^^^^
   = help: the following other types implement trait `Redact`:
             &T
+            BTreeMap<K, V>
             Box<T>
+            HashMap<K, V, S>
             Option<T>
             S
             Secret<T>
             Vec<T>
-            [T; N]
-            [T]
-            redactant::Fingerprint
+          and $N others
 
 error[E0277]: the trait bound `Plain: Redact` is not satisfied
  --> tests/ui-derive/nested_not_redact.rs:5:33
@@ -36,11 +36,11 @@ help: the trait `Redact` is not implemented for `Plain`
   | ^^^^^^^^^^^^
   = help: the following other types implement trait `Redact`:
             &T
+            BTreeMap<K, V>
             Box<T>
+            HashMap<K, V, S>
             Option<T>
             S
             Secret<T>
             Vec<T>
-            [T; N]
-            [T]
-            redactant::Fingerprint
+          and $N others

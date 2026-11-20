@@ -1,6 +1,6 @@
 # Field-level derive: what RedactAnt needs and offers (ROADMAP row 6)
 
-Status: **design; slice 1 (hand-written `Redact`, no macro) built on branch `lane-work` 2026-11-19; slices 2-4 not built.** Written 2026-11-12 by the `redactant` lane on the PM's [TASK]. Independent of AuditAnt:
+Status: **design; slice 1 (hand-written `Redact`, no macro) built on branch `lane-work` 2026-11-19; slice 2 (structs) merged 0.1.14; slice 3 (enums, maps) built on branch `lane-enums` 2026-11-20; slice 4 (serde adapter) not built.** Written 2026-11-12 by the `redactant` lane on the PM's [TASK]. Independent of AuditAnt:
 AuditAnt is only a claimed name with no lane and no design (PM, 2026-11-12), so this note says what RedactAnt can offer
 any consumer that wants *structured* redaction (a whole struct or enum, field by field) and lists in section 9 what only
 that consumer's author can decide. Code below is illustrative; names are not final. Facts about the shipped types were
@@ -223,3 +223,9 @@ Slice 1 is unblocked; the derive (slice 2) now has its inputs. Answers, and what
 - `Segment` and `Disposition` are `#[non_exhaustive]`. `None` in an `Option` reports nothing.
 - The `redacted()` view prints flat `path=value` pairs (`password=<redacted>, inner.note=<redacted>, tags[0].note=<redacted>`), not the nested `Type { .. }` form in section 2; it is deterministic (9b answer 5).
 - D1-D5 are in `tests/redact_canary.rs`; the `Kept(&Secret)` compile-fail case is `tests/ui/keep_secret.rs` with pass twin `tests/ui-pass/keep_value.rs`. Re-sweep 3 in `PATENT-SWEEP.md` covers this family (2026-11-19). `cargo semver-checks` against 0.1.2 passes locally (default and `serde` features); adding it to CI is not done.
+
+## 11. Slices 2 and 3 as built (2026-11-20)
+
+- Slice 2 (`redactant-derive`, structs) merged as 0.1.14. Slice 3 adds enums and maps: path = `Variant(name)` then `Field(name)` (or the tuple index); a unit variant reports one `Kept(())` at its `Variant` path; the schema string names every variant (`Event{Login{user:keep,password:secret,},Logout{},}`).
+- Maps: `BTreeMap`/`HashMap` values report under a `Key` segment. **The key is shown**, so `K: Keep`; a `Secret` key does not compile. `HashMap` entries are sorted by the key's `Debug` text for deterministic output (9b answer 5). Maps with `nested` values are the only map form; a disposition on a map applies through its value type.
+- Still open: slice 4 (the `serde` sink adapter; re-run the patent sweep first, per pm-ants), `redactant-derive` publication (PM order: `redactant-derive` before `redactant`).

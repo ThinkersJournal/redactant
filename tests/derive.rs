@@ -205,3 +205,162 @@ fn macro_hygiene_survives_shadowed_prelude_names() {
     shadow::H { x: 1 }.describe(&Context::without_key(), &mut r);
     assert_eq!(r.0, ["x REDACTED"]);
 }
+
+mod enums_maps_and_hygiene {
+    use super::*;
+    use std::collections::{BTreeMap, HashMap};
+
+    #[derive(Redact)]
+    enum Event {
+        Login {
+            #[redact(keep)]
+            user: String,
+            password: Secret<String>,
+        },
+        Rename(#[redact(fingerprint)] String, #[redact(keep)] u8),
+        Logout,
+    }
+
+    #[derive(Redact)]
+    #[redact(default = "redact")]
+    enum Loose {
+        A {
+            x: String,
+        },
+        #[redact(default = "fingerprint")]
+        B(String),
+    }
+
+    fn rec<T: Redact>(v: &T, cx: &Context<'_>) -> Vec<String> {
+        let mut r = Rec::default();
+        v.describe(cx, &mut r);
+        r.0
+    }
+
+    #[test]
+    fn enum_variants_report_variant_then_field_paths() {
+        let k = FingerprintKey::new(&[3u8; 32]).unwrap();
+        let cx = Context::with_key(&k);
+        let a = rec(
+            &Event::Login {
+                user: "u1".into(),
+                password: Secret::new("CANARY-PW-5505".into()),
+            },
+            &cx,
+        );
+        assert_eq!(a, ["Login/user KEPT \"u1\"", "Login/password REDACTED"]);
+        let b = rec(&Event::Rename("CANARY-OLD-6606".into(), 4), &cx);
+        assert!(
+            b[0].starts_with("Rename/0 fp:") && b[0].len() == "Rename/0 fp:".len() + 8,
+            "{b:?}"
+        );
+        assert_eq!(b[1], "Rename/1 KEPT 4");
+        assert!(!b.join("\n").contains("CANARY-OLD-6606"));
+        // a unit variant still reports itself
+        assert_eq!(rec(&Event::Logout, &cx), ["Logout KEPT ()"]);
+        // D4 for enums: no key, no hash
+        assert_eq!(
+            rec(&Event::Rename("x".into(), 1), &Context::without_key())[0],
+            "Rename/0 REDACTED"
+        );
+    }
+
+    #[test]
+    fn enum_defaults_apply_per_variant_and_the_schema_names_every_variant() {
+        let k = FingerprintKey::new(&[3u8; 32]).unwrap();
+        assert_eq!(
+            rec(
+                &Loose::A {
+                    x: "CANARY-X".into()
+                },
+                &Context::with_key(&k)
+            ),
+            ["A/x REDACTED"]
+        );
+        assert!(
+            rec(&Loose::B("CANARY-Y".into()), &Context::with_key(&k))[0].starts_with("B/0 fp:")
+        );
+        assert_eq!(
+            Event::schema(),
+            "Event{Login{user:keep,password:secret,},Rename{0:fingerprint,1:keep,},Logout{},}"
+        );
+        assert_eq!(Loose::schema(), "Loose{A{x:redact,},B{0:fingerprint,},}");
+    }
+
+    #[derive(Redact)]
+    struct Holder {
+        #[redact(nested)]
+        by_name: BTreeMap<String, Session>,
+        #[redact(nested)]
+        by_id: HashMap<u32, Session>,
+    }
+
+    #[test]
+    fn maps_report_key_segments_in_a_deterministic_order_and_never_the_value() {
+        let mut h = Holder {
+            by_name: BTreeMap::new(),
+            by_id: HashMap::new(),
+        };
+        for (i, n) in ["zed", "amy", "bob"].into_iter().enumerate() {
+            h.by_name.insert(
+                n.into(),
+                Session {
+                    token_note: format!("CANARY-MAP-{i}"),
+                },
+            );
+        }
+        for i in [9u32, 1, 5, 3, 7, 2, 8, 4, 6] {
+            h.by_id.insert(
+                i,
+                Session {
+                    token_note: format!("CANARY-ID-{i}"),
+                },
+            );
+        }
+        let first = rec(&h, &Context::without_key());
+        assert_eq!(
+            &first[..3],
+            [
+                "by_name/[\"amy\"]/token_note REDACTED",
+                "by_name/[\"bob\"]/token_note REDACTED",
+                "by_name/[\"zed\"]/token_note REDACTED"
+            ]
+        );
+        assert_eq!(first[3], "by_id/[1]/token_note REDACTED");
+        assert_eq!(first.len(), 12);
+        assert!(!first.join("\n").contains("CANARY"));
+        for _ in 0..20 {
+            assert_eq!(
+                first,
+                rec(&h, &Context::without_key()),
+                "hash-map order must not leak into the output"
+            );
+        }
+    }
+
+    #[test]
+    fn hygiene_lifetimes_where_clauses_and_shadowed_result() {
+        #[allow(dead_code, non_snake_case, unused)]
+        mod shadow {
+            pub enum Result {}
+            pub struct Box;
+            pub struct Self_;
+            use redactant::Redact;
+            #[derive(Redact)]
+            pub enum E<'a, T>
+            where
+                T: core::fmt::Debug,
+            {
+                V {
+                    #[redact(keep)]
+                    s: &'a str,
+                },
+                W(#[redact] T),
+            }
+        }
+        let mut r = Rec::default();
+        shadow::E::<u8>::V { s: "hi" }.describe(&Context::without_key(), &mut r);
+        shadow::E::<u8>::W(1).describe(&Context::without_key(), &mut r);
+        assert_eq!(r.0, ["V/s KEPT \"hi\"", "W/0 REDACTED"]);
+    }
+}

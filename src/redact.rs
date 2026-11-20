@@ -283,6 +283,41 @@ impl<T: Redact, const N: usize> Redact for [T; N] {
     }
 }
 
+fn describe_entry<K: Keep + ?Sized, V: Redact>(
+    key: &K,
+    value: &V,
+    path: &[Segment<'_>],
+    cx: &Context<'_>,
+    sink: &mut dyn Sink,
+) {
+    let mut p: Vec<Segment<'_>> = path.to_vec();
+    p.push(Segment::Key(&key));
+    value.describe_at(&p, cx, sink);
+}
+
+/// A map reports each value under a `Key` segment. The key is shown, so it must be [`Keep`] (the author's claim that
+/// keys are not secret). Entries come out in the keys' order, so the output is deterministic.
+impl<K: Keep + Ord, V: Redact> Redact for std::collections::BTreeMap<K, V> {
+    fn describe_at(&self, path: &[Segment<'_>], cx: &Context<'_>, sink: &mut dyn Sink) {
+        for (k, v) in self {
+            describe_entry(k, v, path, cx, sink);
+        }
+    }
+}
+
+/// Like the `BTreeMap` impl; a hash map's iteration order varies, so entries are sorted by the keys' `Debug` text to
+/// keep the output deterministic (DERIVE 9b answer 5).
+impl<K: Keep + Eq + core::hash::Hash, V: Redact, S> Redact for std::collections::HashMap<K, V, S> {
+    fn describe_at(&self, path: &[Segment<'_>], cx: &Context<'_>, sink: &mut dyn Sink) {
+        let mut entries: Vec<(String, &K, &V)> =
+            self.iter().map(|(k, v)| (format!("{k:?}"), k, v)).collect();
+        entries.sort_by(|a, b| a.0.cmp(&b.0));
+        for (_, k, v) in entries {
+            describe_entry(k, v, path, cx, sink);
+        }
+    }
+}
+
 /// The view returned by [`Redact::redacted`]. Output is deterministic: the same value and context print the same
 /// bytes. `{}` and `{:?}` print `path=value` pairs on one line; `{:#?}` prints one pair per line. Width and padding
 /// flags are ignored.
