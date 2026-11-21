@@ -7,6 +7,8 @@ mod fingerprint;
 mod redact;
 mod scrubber;
 mod secret;
+#[cfg(feature = "serde")]
+pub mod serde_sink;
 
 pub use fingerprint::{Fingerprint, FingerprintKey, KeyError, MIN_KEY_LEN};
 pub use redact::{Context, Disposition, Keep, Redact, RedactedView, Segment, Sink};
