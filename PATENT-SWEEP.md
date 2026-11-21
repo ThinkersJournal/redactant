@@ -268,3 +268,33 @@ standing non-goal: **no data-driven classification inside the structured path.**
 - Not searched: USPTO full text, Espacenet, WIPO, assignee searches. Absence of hits for a compile-time per-field requirement and for
   withhold-without-key is absence of hits.
 - Re-sweep before slice 4 (serde adapter) if its design touches tree masking, and at the latest by 2027-11-09 with the rest.
+
+---
+
+# Re-sweep 4: serde sink adapter (slice 4 design only) @ cd87bb4
+
+Date: 2026-11-21; Run by: redactant lane, Sonnet 5.5; scope: DERIVE.md section 8 slice 4, a `Sink` that writes each reported field (path + disposition) into a caller-supplied `serde::Serializer`. Same method and limits as the earlier passes: AI-assisted search, **NOT legal advice, NOT a freedom-to-operate opinion, no attorney**. Verdict wording: "outside as read", never "clear". **No claims were read in this pass**; the lines below are what the search tool's result summaries said, so no verdict is given.
+
+## Idea swept
+15. A writer that receives (field path, disposition) from a type's own `describe` and emits them through a streaming serializer, with no parsed document tree and no masking rule file.
+
+## Queries (WebSearch limited to patents.google.com; 2026-11-21)
+| # | Idea | Query |
+|---|---|---|
+| Q18 | 15 | `patent serializer adapter writes field path and disposition to JSON serializer, redacting sensitive fields during serialization of data structure, per-field masking in serializer output` |
+| Q19 | 15 | `patent streaming serialization of object to JSON with sensitive field values replaced by placeholder or keyed hash, visitor callback receives field path, without parsing document tree` |
+
+Positive control: both returned real masking patents (EP2728508B1, US8539597B2, already hits 32 and 33), so the search reaches the field. No result described a serializer-side writer fed by the type's own per-field dispositions; that is absence of hits, not of patents.
+
+## Newly seen, NOT read (no verdict)
+US12367314B1 (dynamic database redaction using an HMAC key-dependent hash), US20090164515A1 (serializing data with path information; DOM/SAX processing), US20200293685A1 (guided redaction, placeholders), GB2506489A, US20100205189A1 / US8156159B2 (column masking), US20110239113A1 (descriptor labels on export), WO2013101723A1 (pattern matching and masking).
+
+## Design constraints for slice 4
+- Unchanged from Re-sweep 3 and held by construction: the adapter writes dispositions as they are reported; it never parses or walks a document tree, applies no path-rule or masking-specification file (hit 32), infers nothing from values (hit 29), intercepts nothing (hits 30, 34), and has no reverse path (hits 31, 33).
+- Add: the adapter is an output of `describe`, never a transform of an already-serialized JSON/XML tree.
+
+## Needs review (to the PM)
+US12367314B1 and US20090164515A1 should be read before slice 4 is built if the PM wants a verdict; the design above is shaped to avoid tree masking and key custody regardless.
+
+## Limitations
+Two queries, summaries only, no claims read; USPTO, Espacenet, WIPO and assignee searches not run.
