@@ -196,6 +196,15 @@ pub trait Redact {
         }
     }
 
+    /// A `serde::Serialize` view of this record's dispositions as a flat path-keyed map (feature `serde`).
+    #[cfg(feature = "serde")]
+    fn serde_view<'k>(&self, cx: Context<'k>) -> crate::serde_sink::SerdeView<'_, 'k, Self>
+    where
+        Self: Sized,
+    {
+        crate::serde_sink::SerdeView { value: self, cx }
+    }
+
     /// Like [`Redact::redacted`], under `cx`.
     fn redacted_with<'k>(&self, cx: Context<'k>) -> RedactedView<'_, 'k, Self>
     where

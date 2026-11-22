@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.16 — serde sink adapter (DERIVE slice 4)
+
+New `redactant::serde_sink::serialize` and `Redact::serde_view` (feature `serde`): write a record's field dispositions into any `serde::Serializer` as a flat map keyed by path (`role`, `login.email`, `items[0]`). `Redacted` is written as the placeholder, `Fingerprint` as its `fp:` text (placeholder without a key), only `Keep` fields as themselves. It is an output of `describe`, not a tree masker (PATENT-SWEEP Re-sweep 4). Verified by byte-level canary tests with a negative control.
+
 ## 0.1.15 — `#[derive(Redact)]` for enums; `Redact` for `BTreeMap` and `HashMap`
 
 `#[derive(Redact)]` now accepts enums (DERIVE slice 3). The variant name is always reported, as a `Variant` path segment ahead of the variant's field paths; each variant's fields follow the struct rules, a variant may carry `#[redact(default = "redact"|"fingerprint")]` (overriding the enum's), and a variant with no fields reports itself as one `Kept(())` at its `Variant` path so the choice stays visible. `Redact::schema()` names every variant. `Redact` is implemented for `BTreeMap<K, V>` and `HashMap<K, V, S>` with `Redact` values, reporting each value under a `Key` segment; the key is shown, so `K` must be `Keep` (a `Secret` key is a compile error), and a hash map's entries are sorted by the keys' `Debug` text so the output is deterministic whatever the iteration order. Additive only. Verified by new tests in `tests/derive.rs` (variant and index paths, unit variants, per-variant defaults, schema, map order across 20 repeats, hygiene with lifetime, `where` clause and a shadowed `Result`/`Box`) and compile-fail cases for an unannotated enum field and a `Secret` map key, each with a passing twin.
